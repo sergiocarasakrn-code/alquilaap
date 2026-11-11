@@ -1,10 +1,14 @@
-import { CATEGORIES, CITIES } from "@/lib/config";
+import { LocationField } from "./LocationField";
+import { CategoryPicker } from "./CategoryPicker";
 
 interface Defaults {
   title?: string;
   description?: string;
   category?: string;
+  subcategory?: string | null;
   citySlug?: string;
+  lat?: number | null;
+  lng?: number | null;
   pricePerDayCents?: number;
   depositCents?: number;
 }
@@ -18,32 +22,14 @@ export function ListingForm({ action, d = {}, submit, photosRequired }: { action
         <span className="label">Título</span>
         <input name="title" required minLength={4} maxLength={80} defaultValue={d.title} className="input" placeholder="Ej.: Bici eléctrica de paseo talla M" />
       </label>
-      <label>
+      <div className="sm:col-span-2">
         <span className="label">Categoría</span>
-        <select name="category" required defaultValue={d.category ?? ""} className="input">
-          <option value="" disabled>
-            Elige…
-          </option>
-          {CATEGORIES.map((c) => (
-            <option key={c.slug} value={c.slug}>
-              {c.name}
-            </option>
-          ))}
-        </select>
-      </label>
-      <label>
-        <span className="label">Ciudad</span>
-        <select name="city" required defaultValue={d.citySlug ?? ""} className="input">
-          <option value="" disabled>
-            Elige…
-          </option>
-          {Object.entries(CITIES).map(([slug, c]) => (
-            <option key={slug} value={slug}>
-              {c.name}
-            </option>
-          ))}
-        </select>
-      </label>
+        <CategoryPicker mode="form" defaultCategory={d.category} defaultSubcategory={d.subcategory} />
+      </div>
+      <div className="sm:col-span-2">
+        <span className="label">¿Dónde está?</span>
+        <LocationField defaultCity={d.citySlug} defaultLat={d.lat} defaultLng={d.lng} />
+      </div>
       <label>
         <span className="label">Precio por día (€)</span>
         <input name="price" required inputMode="decimal" defaultValue={euros(d.pricePerDayCents)} className="input" placeholder="15" />

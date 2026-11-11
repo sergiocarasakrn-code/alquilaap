@@ -126,3 +126,44 @@ describe("formularios", () => {
     expect(parseDay("2026-02-28")?.toISOString()).toBe("2026-02-28T00:00:00.000Z");
   });
 });
+
+import { distanceKm, nearestPlace, placesInRegion, PLACES, PROVINCES } from "@/lib/places";
+import { parseZone } from "@/lib/zone";
+import { CATEGORIES, isSubcategory } from "@/lib/config";
+
+describe("ubicación", () => {
+  it("mide distancias reales", () => {
+    const d = distanceKm(PLACES.barcelona.lat, PLACES.barcelona.lng, PLACES.castelldefels.lat, PLACES.castelldefels.lng);
+    expect(d).toBeGreaterThan(17);
+    expect(d).toBeLessThan(22);
+  });
+  it("todas las localidades tienen provincia y comunidad", () => {
+    for (const p of Object.values(PLACES)) expect(PROVINCES[p.province]).toBeDefined();
+    expect(placesInRegion("cataluna")).toContain("sant-cugat");
+  });
+  it("encuentra la localidad más cercana", () => {
+    expect(nearestPlace(41.29, 1.98)).toBe("castelldefels");
+  });
+  it("interpreta la zona de la URL", () => {
+    expect(parseZone({ ciudad: "valencia" }).placeSlugs).toEqual(["valencia"]);
+    expect(parseZone({ zona: "p:barcelona" }).placeSlugs).toContain("badalona");
+    const near = parseZone({ zona: "l:valencia", km: "10" });
+    expect(near.km).toBe(10);
+    expect(near.placeSlugs).toBeUndefined();
+    const mine = parseZone({ lat: "41.3912", lng: "2.1549" });
+    expect(mine).toMatchObject({ mine: true, km: 25, center: { lat: 41.39, lng: 2.15 } });
+    expect(parseZone({ lat: "48.85", lng: "2.35" }).mine).toBe(false); // París: fuera de España
+    expect(parseZone({ km: "7" }).km).toBeUndefined();
+  });
+});
+
+describe("categorías", () => {
+  it("los slugs antiguos siguen existiendo", () => {
+    for (const s of ["bicis", "movilidad", "herramientas", "deportes", "camping", "foto", "electronica", "fiestas", "hogar"])
+      expect(CATEGORIES.some((c) => c.slug === s)).toBe(true);
+  });
+  it("valida subcategorías dentro de su categoría", () => {
+    expect(isSubcategory("bicis", "gravel")).toBe(true);
+    expect(isSubcategory("motor", "gravel")).toBe(false);
+  });
+});
