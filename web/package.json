@@ -6,6 +6,7 @@
     "dev": "next dev",
     "build": "prisma generate && next build",
     "start": "next start",
+    "start:prod": "prisma migrate deploy && next start",
     "lint": "tsc --noEmit",
     "db:migrate": "prisma migrate deploy",
     "db:seed": "tsx prisma/seed.ts",
@@ -13,6 +14,7 @@
     "test:db": "DATABASE_URL=$TEST_DATABASE_URL prisma migrate deploy && vitest run"
   },
   "dependencies": {
+    "@aws-sdk/client-s3": "^3.1166.0",
     "@prisma/client": "^6.19.3",
     "next": "^15.5.29",
     "react": "^19.3.1",
