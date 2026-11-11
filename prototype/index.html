@@ -1,0 +1,1008 @@
+<!doctype html>
+<html lang="es"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Alquilaap</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,600;12..96,800&family=Inter:wght@400;500;600;700&display=swap">
+<style>
+/* Layout: marketplace shell. Top bar on desktop, bottom tab bar on phone; tag-yellow marks paid visibility. */
+:root{
+  --bg:#f5f6f2; --surface:#ffffff; --surface-2:#eceee7; --line:#dadcd3;
+  --ink:#16201e; --ink-2:#4c5753; --ink-3:#7c8682;
+  --brand:#0f6b5c; --brand-ink:#ffffff; --brand-soft:#d9ece7;
+  --tag:#f3c536; --tag-ink:#2a2105; --tag-soft:#fbefc2;
+  --ok:#2f8a4c; --warn:#b26b00; --bad:#c2412d; --ok-soft:#dcf0e2; --warn-soft:#f8e8cc; --bad-soft:#f7dcd6;
+  --shadow:0 1px 2px rgba(22,32,30,.06),0 6px 20px rgba(22,32,30,.07);
+  --f-display:"Bricolage Grotesque",ui-sans-serif,system-ui,sans-serif;
+  --f-body:"Inter",ui-sans-serif,system-ui,-apple-system,"Segoe UI",sans-serif;
+  --r:12px;
+}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
+  --bg:#0f1514; --surface:#172020; --surface-2:#1f2a29; --line:#2c3836;
+  --ink:#e8eeec; --ink-2:#b2bdb9; --ink-3:#7f8b87;
+  --brand:#3fb39c; --brand-ink:#06201a; --brand-soft:#173a33;
+  --tag:#f3c536; --tag-ink:#2a2105; --tag-soft:#3a3214;
+  --ok:#5cc47c; --warn:#e2a24a; --bad:#ef7a66; --ok-soft:#183324; --warn-soft:#3a2c14; --bad-soft:#3d1f1a;
+  --shadow:0 1px 2px rgba(0,0,0,.3),0 6px 20px rgba(0,0,0,.3); color-scheme:dark}}
+:root[data-theme="dark"]{
+  --bg:#0f1514; --surface:#172020; --surface-2:#1f2a29; --line:#2c3836;
+  --ink:#e8eeec; --ink-2:#b2bdb9; --ink-3:#7f8b87;
+  --brand:#3fb39c; --brand-ink:#06201a; --brand-soft:#173a33;
+  --tag:#f3c536; --tag-ink:#2a2105; --tag-soft:#3a3214;
+  --ok:#5cc47c; --warn:#e2a24a; --bad:#ef7a66; --ok-soft:#183324; --warn-soft:#3a2c14; --bad-soft:#3d1f1a;
+  --shadow:0 1px 2px rgba(0,0,0,.3),0 6px 20px rgba(0,0,0,.3); color-scheme:dark}
+*{box-sizing:border-box}
+html,body{background:var(--bg)}
+body{color:var(--ink);font-family:var(--f-body);font-size:15px;line-height:1.5;padding-bottom:calc(72px + env(safe-area-inset-bottom,0px))}
+@media(min-width:900px){body{padding-bottom:0}}
+body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset-top,0px);z-index:60;background:var(--surface)}
+h1,h2,h3{font-family:var(--f-display);line-height:1.15;text-wrap:balance;margin:0;letter-spacing:-.01em}
+h1{font-size:clamp(28px,5vw,46px);font-weight:800}
+h2{font-size:22px;font-weight:800}
+h3{font-size:17px;font-weight:600}
+p{margin:0}
+a{color:var(--brand)}
+button,input,select,textarea{font:inherit;color:inherit}
+:focus-visible{outline:3px solid var(--brand);outline-offset:2px}
+.wrap{max-width:1180px;margin:0 auto;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px))}
+.muted{color:var(--ink-2)} .small{font-size:13px} .tiny{font-size:12px;color:var(--ink-3)}
+.label{font-size:12px;font-weight:600;letter-spacing:.06em;text-transform:uppercase;color:var(--ink-3)}
+.num{font-variant-numeric:tabular-nums}
+.row{display:flex;gap:12px;align-items:center;flex-wrap:wrap}
+.stack{display:flex;flex-direction:column;gap:12px}
+.spacer{flex:1}
+
+/* Top bar */
+.top{position:sticky;top:env(safe-area-inset-top,0px);z-index:50;background:var(--surface);border-bottom:1px solid var(--line)}
+.top .wrap{display:flex;align-items:center;gap:16px;height:64px}
+.logo{display:flex;align-items:center;gap:8px;font-family:var(--f-display);font-weight:800;font-size:22px;color:var(--ink);text-decoration:none;letter-spacing:-.02em}
+.logo .mark{width:30px;height:30px;border-radius:8px;background:var(--brand);display:grid;place-items:center}
+.logo .mark svg{width:18px;height:18px;stroke:var(--brand-ink)}
+.logo b{color:var(--brand)}
+.topsearch{flex:1;max-width:460px;display:none}
+.topnav{display:none;gap:4px;align-items:center}
+.topnav a{padding:8px 12px;border-radius:8px;text-decoration:none;color:var(--ink-2);font-weight:500;position:relative}
+.topnav a.on,.topnav a:hover{color:var(--ink);background:var(--surface-2)}
+@media(min-width:900px){.topsearch{display:block}.topnav{display:flex}}
+.dot{position:absolute;top:4px;right:4px;min-width:16px;height:16px;padding:0 4px;border-radius:8px;background:var(--bad);color:#fff;font-size:10px;font-weight:700;display:grid;place-items:center}
+
+/* Bottom tabs */
+.tabs{position:fixed;left:0;right:0;bottom:0;z-index:50;background:var(--surface);border-top:1px solid var(--line);display:grid;grid-template-columns:repeat(5,1fr);padding:6px max(8px,env(safe-area-inset-right,0px)) calc(6px + env(safe-area-inset-bottom,0px)) max(8px,env(safe-area-inset-left,0px))}
+.tabs a{display:flex;flex-direction:column;align-items:center;gap:2px;font-size:11px;font-weight:600;color:var(--ink-3);text-decoration:none;padding:4px 0;position:relative}
+.tabs a svg{width:22px;height:22px}
+.tabs a.on{color:var(--brand)}
+.tabs a.pub span.ic{background:var(--brand);color:var(--brand-ink);border-radius:10px;padding:3px 10px;display:grid;place-items:center}
+.tabs .dot{right:calc(50% - 20px)}
+@media(min-width:900px){.tabs{display:none}}
+
+/* Controls */
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;border:1px solid var(--line);background:var(--surface);color:var(--ink);padding:10px 16px;border-radius:10px;font-weight:600;cursor:pointer;text-decoration:none;white-space:nowrap}
+.btn:hover{border-color:var(--ink-3)}
+.btn.primary{background:var(--brand);border-color:var(--brand);color:var(--brand-ink)}
+.btn.primary:hover{filter:brightness(1.07)}
+.btn.tag{background:var(--tag);border-color:var(--tag);color:var(--tag-ink)}
+.btn.ghost{background:transparent;border-color:transparent}
+.btn.danger{color:var(--bad)}
+.btn.sm{padding:6px 12px;font-size:13px;border-radius:8px}
+.btn.block{width:100%}
+.btn[disabled]{opacity:.5;cursor:not-allowed}
+.btn svg{width:18px;height:18px}
+.field{display:flex;flex-direction:column;gap:6px;min-width:0}
+.field>span{font-size:13px;font-weight:600;color:var(--ink-2)}
+.input,select.input,textarea.input{width:100%;background:var(--surface);border:1px solid var(--line);border-radius:10px;padding:10px 12px;min-width:0}
+textarea.input{min-height:110px;resize:vertical}
+.input:focus{outline:2px solid var(--brand);outline-offset:0;border-color:transparent}
+.searchbox{position:relative}
+.searchbox svg{position:absolute;left:12px;top:50%;transform:translateY(-50%);width:18px;height:18px;stroke:var(--ink-3)}
+.searchbox .input{padding-left:38px}
+.chip{display:inline-flex;align-items:center;gap:6px;padding:6px 12px;border-radius:999px;border:1px solid var(--line);background:var(--surface);font-size:13px;font-weight:600;cursor:pointer;color:var(--ink-2)}
+.chip.on{background:var(--ink);border-color:var(--ink);color:var(--bg)}
+.pill{display:inline-flex;align-items:center;gap:4px;padding:2px 8px;border-radius:999px;font-size:12px;font-weight:700}
+.pill.ok{background:var(--ok-soft);color:var(--ok)} .pill.warn{background:var(--warn-soft);color:var(--warn)} .pill.bad{background:var(--bad-soft);color:var(--bad)}
+.pill.info{background:var(--brand-soft);color:var(--brand)} .pill.tag{background:var(--tag);color:var(--tag-ink)} .pill.grey{background:var(--surface-2);color:var(--ink-2)}
+.card{background:var(--surface);border:1px solid var(--line);border-radius:var(--r)}
+.pad{padding:16px} @media(min-width:640px){.pad{padding:20px}}
+.section{padding-block:28px;display:flex;flex-direction:column;gap:16px}
+.sechead{display:flex;align-items:end;gap:12px;flex-wrap:wrap}
+.sechead .spacer{min-width:8px}
+
+/* Hero */
+.hero{background:var(--ink);color:var(--bg)}
+.hero .wrap{padding-block:36px 40px;display:grid;gap:24px}
+.hero h1{color:var(--bg);max-width:16ch}
+.hero h1 em{font-style:normal;color:var(--tag)}
+.hero p{color:color-mix(in srgb,var(--bg) 75%,transparent);max-width:52ch}
+.herosearch{display:grid;grid-template-columns:1fr;gap:8px;background:var(--surface);padding:8px;border-radius:14px;max-width:760px;color:var(--ink)}
+@media(min-width:700px){.herosearch{grid-template-columns:1.6fr 1fr auto}}
+.herosearch .input{border-color:transparent;background:var(--surface-2)}
+.stats{display:flex;gap:28px;flex-wrap:wrap}
+.stats div b{display:block;font-family:var(--f-display);font-size:24px;color:var(--bg)}
+.stats div span{font-size:13px;color:color-mix(in srgb,var(--bg) 65%,transparent)}
+
+/* Categories */
+.cats{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}
+@media(min-width:640px){.cats{grid-template-columns:repeat(5,1fr)}}
+@media(min-width:1000px){.cats{grid-template-columns:repeat(9,1fr)}}
+.cat{display:flex;flex-direction:column;align-items:center;gap:8px;padding:14px 6px;border-radius:var(--r);background:var(--surface);border:1px solid var(--line);cursor:pointer;text-align:center;font-size:13px;font-weight:600;color:var(--ink)}
+.cat:hover{border-color:var(--brand)}
+.cat .ico{width:44px;height:44px;border-radius:12px;display:grid;place-items:center}
+.cat .ico svg{width:26px;height:26px}
+
+/* Listing cards */
+.grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}
+@media(min-width:700px){.grid{grid-template-columns:repeat(3,minmax(0,1fr));gap:16px}}
+@media(min-width:1100px){.grid.g4{grid-template-columns:repeat(4,minmax(0,1fr))}}
+.item{display:flex;flex-direction:column;background:var(--surface);border:1px solid var(--line);border-radius:var(--r);overflow:hidden;cursor:pointer;text-decoration:none;color:var(--ink);transition:transform .15s,box-shadow .15s;min-width:0}
+.item:hover{transform:translateY(-2px);box-shadow:var(--shadow)}
+.item.boosted{border-color:var(--tag);box-shadow:0 0 0 1px var(--tag)}
+.ph{position:relative;aspect-ratio:4/3;max-width:100%;display:grid;place-items:center;overflow:hidden}
+.ph img{width:100%;height:100%;object-fit:cover}
+.ph svg.big{width:38%;height:38%;opacity:.9}
+.ph .badge{position:absolute;top:8px;left:8px}
+.ph .dist{position:absolute;bottom:8px;right:8px;background:rgba(10,16,15,.72);color:#fff;font-size:12px;font-weight:600;padding:2px 8px;border-radius:999px}
+.item .body{padding:10px 12px 12px;display:flex;flex-direction:column;gap:2px;min-width:0}
+.item .price{font-family:var(--f-display);font-weight:800;font-size:19px}
+.item .price small{font-family:var(--f-body);font-weight:500;font-size:12px;color:var(--ink-3)}
+.item .t{font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.item .meta{font-size:12px;color:var(--ink-3);display:flex;gap:6px;flex-wrap:wrap}
+.hscroll{display:grid;grid-auto-flow:column;grid-auto-columns:minmax(220px,1fr);gap:12px;overflow-x:auto;padding-bottom:6px;scroll-snap-type:x mandatory}
+.hscroll>*{scroll-snap-align:start}
+@media(min-width:1000px){.hscroll{grid-auto-columns:calc((100% - 36px)/4)}}
+
+/* Search layout */
+.searchlayout{display:grid;gap:20px;padding-block:20px}
+@media(min-width:900px){.searchlayout{grid-template-columns:280px minmax(0,1fr);align-items:start}}
+.filters{display:flex;flex-direction:column;gap:16px}
+@media(min-width:900px){.filters{position:sticky;top:84px}}
+.filters details summary{cursor:pointer;font-weight:600}
+.range2{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.mapbox{position:relative;width:100%;aspect-ratio:4/3;max-width:100%;background:var(--surface-2);border-radius:var(--r);overflow:hidden;border:1px solid var(--line)}
+.mapbox svg{width:100%;height:100%;display:block}
+.mapbox .pin{cursor:pointer}
+
+/* Detail */
+.detail{display:grid;gap:24px;padding-block:20px}
+@media(min-width:900px){.detail{grid-template-columns:minmax(0,1.5fr) minmax(320px,1fr);align-items:start}}
+.gallery .main{border-radius:var(--r);overflow:hidden}
+.thumbs{display:flex;gap:8px;margin-top:8px;overflow-x:auto}
+.thumbs button{width:72px;height:54px;padding:0;border-radius:8px;overflow:hidden;border:2px solid transparent;cursor:pointer;flex:none;background:var(--surface-2)}
+.thumbs button.on{border-color:var(--brand)}
+.thumbs img{width:100%;height:100%;object-fit:cover}
+.bookbox{position:relative}
+@media(min-width:900px){.bookbox{position:sticky;top:84px}}
+.sum{display:grid;grid-template-columns:1fr auto;gap:6px 12px;font-size:14px}
+.sum .tot{font-weight:800;font-size:16px;border-top:1px solid var(--line);padding-top:8px}
+.owner{display:flex;gap:12px;align-items:center}
+.av{width:44px;height:44px;border-radius:50%;display:grid;place-items:center;font-weight:700;color:#fff;flex:none;font-size:16px}
+.av.sm{width:32px;height:32px;font-size:13px}
+.specs{display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:10px}
+.spec{background:var(--surface-2);border-radius:10px;padding:10px 12px}
+.spec b{display:block;font-size:16px}
+
+/* Calendar */
+.cal{user-select:none}
+.cal .hd{display:flex;align-items:center;justify-content:space-between;margin-bottom:8px;font-weight:700}
+.cal .gridc{display:grid;grid-template-columns:repeat(7,1fr);gap:3px;text-align:center;font-size:13px}
+.cal .dow{font-size:11px;color:var(--ink-3);font-weight:600;padding:4px 0}
+.cal .d{padding:7px 0;border-radius:8px;cursor:pointer;font-variant-numeric:tabular-nums;border:1px solid transparent}
+.cal .d:hover{border-color:var(--brand)}
+.cal .d.past{color:var(--ink-3);opacity:.45;cursor:default;border-color:transparent}
+.cal .d.blk{background:var(--surface-2);color:var(--ink-3);text-decoration:line-through}
+.cal .d.bkd{background:var(--bad-soft);color:var(--bad);text-decoration:line-through}
+.cal .d.sel{background:var(--brand);color:var(--brand-ink);font-weight:700}
+.cal .d.mid{background:var(--brand-soft);color:var(--ink)}
+.cal .d.empty{cursor:default;border-color:transparent}
+.legend{display:flex;gap:12px;flex-wrap:wrap;font-size:12px;color:var(--ink-3)}
+.legend i{display:inline-block;width:10px;height:10px;border-radius:3px;margin-right:4px;vertical-align:-1px}
+
+/* Packs */
+.packs{display:grid;gap:12px}
+@media(min-width:760px){.packs{grid-template-columns:repeat(4,minmax(0,1fr))}}
+.pack.free{cursor:default;background:var(--surface-2)}
+.pack{position:relative;display:flex;flex-direction:column;gap:10px;padding:18px;border-radius:var(--r);border:1px solid var(--line);background:var(--surface);cursor:pointer;text-align:left}
+.pack.sel{border-color:var(--brand);box-shadow:0 0 0 2px var(--brand)}
+.pack .pp{font-family:var(--f-display);font-weight:800;font-size:28px}
+.pack ul{margin:0;padding-left:18px;font-size:14px;color:var(--ink-2);display:flex;flex-direction:column;gap:4px}
+.pack .ribbon{position:absolute;top:-10px;right:14px}
+
+/* Tables / lists */
+.list{display:flex;flex-direction:column}
+.li{display:flex;gap:12px;align-items:center;padding:12px 0;border-bottom:1px solid var(--line);min-width:0}
+.li:last-child{border-bottom:0}
+@media(max-width:640px){.li .acts{width:100%;padding-left:84px;flex-wrap:wrap}}
+.li .th{width:72px;height:54px;border-radius:8px;overflow:hidden;flex:none}
+.li .th .ph{aspect-ratio:auto;height:100%}
+.li .grow{flex:1;min-width:0}
+.li .grow .t{font-weight:600;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.kpis{display:grid;grid-template-columns:repeat(2,1fr);gap:12px}
+@media(min-width:760px){.kpis{grid-template-columns:repeat(4,1fr)}}
+.kpi{padding:14px 16px}
+.kpi b{display:block;font-family:var(--f-display);font-size:26px;font-variant-numeric:tabular-nums}
+
+/* Messages */
+.msglayout{display:grid;gap:16px;padding-block:20px}
+@media(min-width:900px){.msglayout{grid-template-columns:320px minmax(0,1fr)}}
+.thread{display:flex;gap:10px;align-items:center;padding:12px;border-radius:10px;cursor:pointer;min-width:0}
+.thread:hover,.thread.on{background:var(--surface-2)}
+.chat{display:flex;flex-direction:column;height:min(70vh,640px)}
+.chat .log{flex:1;overflow-y:auto;display:flex;flex-direction:column;gap:8px;padding:16px}
+.bub{max-width:78%;padding:8px 12px;border-radius:14px;background:var(--surface-2);font-size:14px;overflow-wrap:anywhere}
+.bub.me{align-self:flex-end;background:var(--brand);color:var(--brand-ink)}
+.bub.sys{align-self:center;background:transparent;color:var(--ink-3);font-size:12px;text-align:center}
+.chat form{display:flex;gap:8px;padding:12px;border-top:1px solid var(--line)}
+
+/* Steps */
+.how{display:grid;gap:12px}
+@media(min-width:760px){.how{grid-template-columns:repeat(4,1fr)}}
+.how .card{padding:16px;display:flex;flex-direction:column;gap:6px}
+.how .n{font-family:var(--f-display);font-weight:800;font-size:15px;color:var(--brand)}
+.split{display:grid;gap:20px}
+@media(min-width:900px){.split{grid-template-columns:1fr 1fr;align-items:center}}
+
+/* Modal + toast */
+.scrim{position:fixed;inset:0;background:rgba(8,12,11,.55);z-index:80;display:flex;align-items:flex-end;justify-content:center}
+@media(min-width:700px){.scrim{align-items:center;padding:24px}}
+.modal{background:var(--surface);width:100%;max-width:760px;max-height:92vh;overflow-y:auto;border-radius:18px 18px 0 0;padding:20px max(16px,env(safe-area-inset-right,0px)) calc(20px + env(safe-area-inset-bottom,0px)) max(16px,env(safe-area-inset-left,0px))}
+@media(min-width:700px){.modal{border-radius:18px;padding:24px}}
+.modal.narrow{max-width:440px}
+.toast{position:fixed;left:50%;transform:translateX(-50%);bottom:calc(88px + env(safe-area-inset-bottom,0px));z-index:90;background:var(--ink);color:var(--bg);padding:10px 16px;border-radius:10px;font-weight:600;font-size:14px;box-shadow:var(--shadow);max-width:calc(100% - 32px)}
+@media(min-width:900px){.toast{bottom:24px}}
+.demo{background:var(--tag-soft);color:var(--ink);font-size:13px}
+.demo .wrap{padding-block:8px;display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+.photos{display:flex;gap:8px;flex-wrap:wrap}
+.photos .p{position:relative;width:96px;height:72px;border-radius:8px;overflow:hidden;background:var(--surface-2)}
+.photos .p img{width:100%;height:100%;object-fit:cover}
+.photos .p button{position:absolute;top:4px;right:4px;width:22px;height:22px;border-radius:50%;border:0;background:rgba(0,0,0,.6);color:#fff;cursor:pointer;line-height:1}
+.drop{width:96px;height:72px;border-radius:8px;border:2px dashed var(--line);display:grid;place-items:center;cursor:pointer;color:var(--ink-3);font-size:12px;text-align:center}
+.formgrid{display:grid;gap:14px}
+@media(min-width:700px){.formgrid.two{grid-template-columns:1fr 1fr}.formgrid.three{grid-template-columns:1fr 1fr 1fr}}
+.stars{color:var(--tag);letter-spacing:1px}
+.starpick button{background:none;border:0;font-size:26px;cursor:pointer;color:var(--line);padding:0 2px}
+.starpick button.on{color:var(--tag)}
+.empty{padding:32px 16px;text-align:center;color:var(--ink-2);display:flex;flex-direction:column;gap:12px;align-items:center}
+.footer{border-top:1px solid var(--line);margin-top:24px}
+.footer .wrap{padding-block:24px;display:flex;gap:16px;flex-wrap:wrap;color:var(--ink-3);font-size:13px}
+@media (prefers-reduced-motion: reduce){*{transition:none!important;animation:none!important}}
+</style>
+
+<div id="app"></div>
+
+<script>
+(function(){
+"use strict";
+/* ============ Config de negocio ============ */
+const FEE_RATE = 0;             // sin comisiones: el único ingreso son los packs
+const PACKS = [
+  {id:"basico", name:"Destacado 24 h", price:1.99, hours:24, rank:1,
+   perks:["Etiqueta «Destacado» en el anuncio","Sube al principio de tu categoría durante 24 h","Ideal para un fin de semana"]},
+  {id:"pro", name:"Pro 7 días", price:6.99, hours:24*7, rank:2, popular:true,
+   perks:["Top de las búsquedas durante 7 días","Aparece en «Destacados cerca de ti» en la portada","Etiqueta «Destacado»","Unas 5× más visitas de media"]},
+  {id:"premium", name:"Premium 30 días", price:19.99, hours:24*30, rank:3,
+   perks:["Todo lo del Pro durante 30 días","Sello «Propietario destacado» en tu perfil","Prioridad en el mapa y en la búsqueda local","Informe semanal de visitas"]}
+];
+const PRO = {name:"Alquilaap Pro", price:24.99,
+  perks:["Todos tus anuncios por delante de los gratuitos, siempre","Perfil de tienda con sello «Tienda Pro»","Reserva inmediata: sin esperar a que aceptes","Anuncios ilimitados y estadísticas de visitas","Soporte prioritario"]};
+const INS = {name:"Seguro de daños y robo", rate:0.07, min:3, cover:1500};
+const CATS = [
+  {id:"bicis",n:"Bicicletas",c:"#0f6b5c"},
+  {id:"movilidad",n:"Patinetes y movilidad",c:"#2f6fb0"},
+  {id:"herramientas",n:"Herramientas",c:"#b2582b"},
+  {id:"deportes",n:"Deportes",c:"#7a4bb0"},
+  {id:"camping",n:"Camping",c:"#4f7a2a"},
+  {id:"foto",n:"Foto y vídeo",c:"#2b2f3a"},
+  {id:"electronica",n:"Electrónica",c:"#1f7f9a"},
+  {id:"fiestas",n:"Fiestas y eventos",c:"#b23a6a"},
+  {id:"hogar",n:"Hogar y jardín",c:"#7a6a2a"}
+];
+const CITIES = {
+  "Barcelona":[41.3874,2.1686],"Valencia":[39.4699,-0.3763],"Madrid":[40.4168,-3.7038],
+  "Sevilla":[37.3891,-5.9845],"Málaga":[36.7213,-4.4214],"Bilbao":[43.263,-2.935],
+  "Zaragoza":[41.6488,-0.8891],"Palma":[39.5696,2.6502],"Girona":[41.9794,2.8214],"Castelldefels":[41.2806,1.9767],"Badalona":[41.4500,2.2474],"Sant Cugat":[41.4722,2.0864]
+};
+
+/* ============ Iconos ============ */
+const IC = {
+ bicis:'<circle cx="6" cy="16" r="4"/><circle cx="18" cy="16" r="4"/><path d="M6 16l4-8h5l3 8M10 8l2 8h-6M14 5h3"/>',
+ movilidad:'<circle cx="6" cy="18" r="2.5"/><circle cx="18" cy="18" r="2.5"/><path d="M6 18h9l3-12h3M15 18l-1-6"/>',
+ herramientas:'<path d="M14.5 6.5a4 4 0 0 0 5 5l-9 9a2.1 2.1 0 0 1-3-3l9-9a4 4 0 0 0 5-5l-2.5 2.5-2-.5-.5-2z"/>',
+ deportes:'<circle cx="12" cy="12" r="8"/><path d="M4 12h16M12 4c3 3 3 13 0 16M12 4c-3 3-3 13 0 16"/>',
+ camping:'<path d="M3 20h18L12 4zM12 4v16M9 20l3-6 3 6"/>',
+ foto:'<rect x="3" y="7" width="18" height="13" rx="2"/><circle cx="12" cy="13.5" r="3.5"/><path d="M8 7l2-3h4l2 3"/>',
+ electronica:'<rect x="3" y="8" width="18" height="10" rx="4"/><path d="M7 13h4M9 11v4M15.5 12.5h.01M17.5 14.5h.01"/>',
+ fiestas:'<rect x="6" y="3" width="12" height="18" rx="2"/><circle cx="12" cy="14" r="3.5"/><circle cx="12" cy="7.5" r="1.3"/>',
+ hogar:'<path d="M4 11l8-7 8 7v9H4zM10 20v-5h4v5"/>',
+ search:'<circle cx="11" cy="11" r="7"/><path d="M20 20l-4-4"/>',
+ home:'<path d="M4 11l8-7 8 7v9h-5v-6H9v6H4z"/>',
+ plus:'<path d="M12 5v14M5 12h14"/>',
+ chat:'<path d="M4 5h16v11H9l-5 4z"/>',
+ user:'<circle cx="12" cy="8" r="4"/><path d="M4 21c1-4 4-6 8-6s7 2 8 6"/>',
+ list:'<path d="M8 6h13M8 12h13M8 18h13M3 6h.01M3 12h.01M3 18h.01"/>',
+ map:'<path d="M9 4L3 6v14l6-2 6 2 6-2V4l-6 2zM9 4v14M15 6v14"/>',
+ pin:'<path d="M12 21s-7-6.5-7-12a7 7 0 0 1 14 0c0 5.5-7 12-7 12z"/><circle cx="12" cy="9" r="2.5"/>',
+ bolt:'<path d="M13 2L4 14h7l-1 8 9-12h-7z"/>',
+ shield:'<path d="M12 3l8 3v6c0 5-3.5 8-8 9-4.5-1-8-4-8-9V6z"/><path d="M9 12l2 2 4-4"/>',
+ cal:'<rect x="3" y="5" width="18" height="16" rx="2"/><path d="M3 10h18M8 3v4M16 3v4"/>',
+ back:'<path d="M15 5l-7 7 7 7"/>',
+ check:'<path d="M5 12l5 5 9-10"/>',
+ key:'<circle cx="8" cy="15" r="4"/><path d="M11 12l9-9M17 6l3 3"/>',
+ euro:'<path d="M17 6a7 7 0 1 0 0 12M4 10h9M4 14h9"/>'
+};
+const svg=(k,cls,extra)=>`<svg class="${cls||""}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" ${extra||""} aria-hidden="true">${IC[k]||""}</svg>`;
+
+/* ============ Utilidades ============ */
+const $=s=>document.querySelector(s);
+const esc=s=>String(s==null?"":s).replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+const eur=n=>(Math.round(n*100)/100).toLocaleString("es-ES",{minimumFractionDigits:n%1?2:0,maximumFractionDigits:2})+" €";
+const eur2=n=>n.toLocaleString("es-ES",{minimumFractionDigits:2,maximumFractionDigits:2})+" €";
+const uid=p=>p+Math.random().toString(36).slice(2,9);
+const pad=n=>String(n).padStart(2,"0");
+const iso=d=>d.getFullYear()+"-"+pad(d.getMonth()+1)+"-"+pad(d.getDate());
+const parse=s=>{const [y,m,d]=s.split("-").map(Number);return new Date(y,m-1,d)};
+const today=()=>{const d=new Date();d.setHours(0,0,0,0);return d};
+const addDays=(d,n)=>{const x=new Date(d);x.setDate(x.getDate()+n);return x};
+const daysBetween=(a,b)=>Math.round((parse(b)-parse(a))/864e5);
+const fmtD=s=>parse(s).toLocaleDateString("es-ES",{day:"numeric",month:"short"});
+const ago=t=>{const m=Math.round((Date.now()-t)/6e4);if(m<60)return "hace "+Math.max(1,m)+" min";const h=Math.round(m/60);if(h<24)return "hace "+h+" h";const d=Math.round(h/24);return d===1?"ayer":"hace "+d+" días"};
+const km=(a,b)=>{const R=6371,toR=x=>x*Math.PI/180;const dLat=toR(b[0]-a[0]),dLng=toR(b[1]-a[1]);const h=Math.sin(dLat/2)**2+Math.cos(toR(a[0]))*Math.cos(toR(b[0]))*Math.sin(dLng/2)**2;return 2*R*Math.asin(Math.sqrt(h))};
+const fmtKm=d=>d<1?Math.round(d*1000/50)*50+" m":(d<10?d.toFixed(1).replace(".",","):Math.round(d))+" km";
+const cat=id=>CATS.find(c=>c.id===id)||CATS[0];
+const initials=n=>n.split(" ").map(w=>w[0]).slice(0,2).join("").toUpperCase();
+
+/* ============ Datos de ejemplo ============ */
+function seed(){
+  const T=today(), D=n=>iso(addDays(T,n)), now=Date.now(), H=3600e3;
+  const users=[
+    {id:"u1",name:"Sergio",city:"Barcelona",color:"#0f6b5c",joined:"2024",verified:{email:true,phone:true,dni:false},bio:"Alquilo bicis de ciudad, eléctricas, gravel y carretera en Barcelona."},
+    {id:"u2",name:"Marta Gil",city:"Barcelona",color:"#b23a6a",joined:"2025",verified:{email:true,phone:true,dni:true},bio:"Fotógrafa freelance. Cuido mucho el material."},
+    {id:"u3",name:"Jordi Puig",city:"Barcelona",color:"#2f6fb0",joined:"2023",verified:{email:true,phone:true,dni:true},bio:"Manitas y montañero. Alquilo lo que no uso entre semana."},
+    {id:"u4",name:"Lucía Romero",city:"Valencia",color:"#7a4bb0",joined:"2025",verified:{email:true,phone:false,dni:false},bio:"Valenciana, fan del paddle surf y los festivales."},
+    {id:"u5",name:"Àlex Ferrer",city:"Badalona",color:"#b2582b",joined:"2024",verified:{email:true,phone:true,dni:true},bio:"Organizo eventos y alquilo equipo de sonido."},
+    {id:"u6",name:"Nerea Ortiz",city:"Madrid",color:"#4f7a2a",joined:"2025",verified:{email:true,phone:true,dni:false},bio:""}
+  ];
+  const jit=(c,k)=>{const b=CITIES[c];const s=Math.sin(k*12.9898)*43758.5453;const r=s-Math.floor(s);const s2=Math.sin(k*78.233)*12345.678;const r2=s2-Math.floor(s2);return [b[0]+(r-.5)*.05,b[1]+(r2-.5)*.06]};
+  const I=(id,ownerId,title,catId,priceDay,priceWeek,deposit,city,desc,extra)=>Object.assign({id,ownerId,title,cat:catId,priceDay,priceWeek,deposit,city,loc:jit(city,id.length+title.length),desc,photos:[],blocked:[],created:now-Math.random()*20*24*H,views:Math.round(20+Math.random()*300),boost:null,active:true,rating:+(4.5+Math.random()*.5).toFixed(1),reviews:Math.round(Math.random()*30)},extra||{});
+  const items=[
+    I("i1","u1","Bici eléctrica urbana Orbea Vibe","bicis",28,150,150,"Barcelona","Bici eléctrica de ciudad con 80 km de autonomía, talla M. Incluye casco, candado en U y cargador. Recogida en el Eixample.",{boost:{pack:"pro",until:now+5*24*H}}),
+    I("i2","u1","Gravel Specialized Diverge carbono","bicis",45,240,300,"Barcelona","Grupo GRX 2x11, cubiertas tubeless 40 mm, talla 56. Perfecta para rutas por Collserola y el Garraf. Pedales SPD y portabidón incluidos."),
+    I("i3","u1","Bici de carretera Cannondale CAAD13","bicis",35,190,250,"Barcelona","Aluminio, Shimano 105, talla 54. Ideal para subir a Montjuïc o hacer la costa hasta Sitges."),
+    I("i4","u1","Bici de ciudad holandesa con cesta","bicis",12,60,80,"Barcelona","Bici mecánica de paseo, 3 velocidades, cesta y luces. La más cómoda para moverte por la ciudad."),
+    I("i5","u2","Sony A7 III + objetivo 24-70 mm","foto",55,300,600,"Barcelona","Cuerpo full frame con 2 baterías, tarjeta de 128 GB y bolsa. Te explico lo básico al recogerla.",{boost:{pack:"premium",until:now+20*24*H}}),
+    I("i6","u2","Dron DJI Mini 4 Pro","foto",40,210,400,"Barcelona","3 baterías y mando con pantalla. Peso inferior a 250 g. Respeta la normativa de vuelo."),
+    I("i7","u3","Taladro percutor Bosch Professional","herramientas",8,35,40,"Barcelona","18 V, 2 baterías, maletín y juego de brocas para pared y madera."),
+    I("i8","u3","Tienda de campaña 4 personas Quechua","camping",15,70,50,"Sant Cugat","Montaje en 2 minutos, doble techo, impermeable. Incluye esterillas.",{boost:{pack:"basico",until:now+14*H}}),
+    I("i9","u3","Escalera telescópica de aluminio 3,8 m","herramientas",6,25,30,"Barcelona","Plegada mide 90 cm, cabe en cualquier maletero. Soporta 150 kg."),
+    I("i10","u4","Tabla de paddle surf hinchable","deportes",22,110,100,"Valencia","Tabla de 10'6'' con remo, inflador, leash y mochila. A 5 min de la Malvarrosa.",{boost:{pack:"pro",until:now+3*24*H}}),
+    I("i11","u4","Proyector Full HD + pantalla 100''","electronica",25,120,150,"Valencia","Para cine de verano o presentaciones. Incluye altavoz Bluetooth y cable HDMI de 10 m."),
+    I("i12","u5","Equipo de sonido 2×1000 W con micro","fiestas",60,300,300,"Badalona","Dos altavoces activos con pie, mesa de mezclas y micro inalámbrico. Te ayudo con el montaje."),
+    I("i13","u5","Patinete eléctrico Xiaomi Pro 2","movilidad",18,90,120,"Badalona","45 km de autonomía, plegable. Casco incluido."),
+    I("i14","u6","Nintendo Switch OLED + 4 juegos","electronica",12,60,150,"Madrid","Con Mario Kart, Zelda, Smash y Overcooked. Dos mandos extra."),
+    I("i15","u3","Kayak doble con remos","deportes",35,180,200,"Castelldefels","Kayak de travesía rígido, chalecos incluidos. Necesitas baca o te lo llevo por 15 €."),
+    I("i16","u6","Cortacésped eléctrico Einhell","hogar",14,55,60,"Madrid","Cesto de 45 l, cable de 20 m. Para jardines de hasta 500 m².")
+  ];
+  items.find(i=>i.id==="i2").blocked=[D(9),D(10),D(11)];
+  const mk=(id,itemId,renterId,s,e,status,extra)=>{const it=items.find(i=>i.id===itemId);const q=quote(it,s,e);return Object.assign({id,itemId,renterId,ownerId:it.ownerId,start:s,end:e,status,created:now-2*H,reviews:{}},q,extra||{})};
+  const bookings=[
+    mk("b1","i1","u2",D(3),D(5),"solicitada"),
+    mk("b2","i5","u1",D(0),D(2),"aceptada",{pickup:{owner:true,renter:false}}),
+    mk("b3","i2","u3",D(-8),D(-6),"finalizada",{pickup:{owner:true,renter:true},ret:{owner:true,renter:true},reviews:{renter:{stars:5,text:"La bici estaba impecable y Sergio me dio una ruta genial por Collserola.",at:now-5*24*H},owner:{stars:5,text:"Jordi la devolvió limpia y a la hora. Inquilino de confianza.",at:now-5*24*H}}}),
+    mk("b5","i7","u1",D(-20),D(-19),"finalizada",{pickup:{owner:true,renter:true},ret:{owner:true,renter:true},reviews:{owner:{stars:5,text:"Sergio cuidó el taladro y lo devolvió con las baterías cargadas.",at:now-18*24*H}}}),
+    mk("b4","i3","u4",D(-1),D(2),"en_curso",{pickup:{owner:true,renter:true},ret:{owner:false,renter:true},insurance:insPrice(105)})
+  ];
+  const messages=[
+    {id:"m1",thread:"i1|u2",from:"u2",text:"¡Hola! ¿La eléctrica tiene sillita para niño o se puede poner una?",at:now-3*H},
+    {id:"m2",thread:"i1|u2",from:"u1",text:"Hola Marta, puedo dejarte una sillita trasera sin coste extra.",at:now-2.6*H},
+    {id:"m3",thread:"i1|u2",from:"u2",text:"Perfecto, te acabo de enviar la solicitud para el finde.",at:now-2*H},
+    {id:"m4",thread:"i5|u1",from:"u2",text:"Reserva aceptada. Te espero en Gràcia a las 10:00. Pagas el alquiler y la fianza en mano o por Bizum.",at:now-1*H}
+  ];
+  const purchases=[
+    {id:"p1",itemId:"i1",userId:"u1",pack:"pro",amount:6.99,at:now-2*24*H},
+    {id:"p2",itemId:"i5",userId:"u2",pack:"premium",amount:19.99,at:now-10*24*H},
+    {id:"p3",itemId:"i10",userId:"u4",pack:"pro",amount:6.99,at:now-4*24*H},
+    {id:"p4",itemId:"i8",userId:"u3",pack:"basico",amount:1.99,at:now-10*H}
+  ];
+  users.find(u=>u.id==="u5").pro=now+18*24*H;
+  const subs=[{id:"s1",userId:"u5",amount:PRO.price,at:now-12*24*H}];
+  return {v:1,me:"u1",myCity:"Barcelona",users,items,bookings,messages,purchases,subs,read:{}};
+}
+function insPrice(sub){return Math.max(INS.min,Math.round(sub*INS.rate*100)/100)}
+function quote(it,s,e,ins){
+  const days=Math.max(1,daysBetween(s,e)+1);
+  let sub;
+  if(it.priceWeek && days>=7){const w=Math.floor(days/7),r=days%7;sub=w*it.priceWeek+Math.min(r*it.priceDay,it.priceWeek)}
+  else sub=days*it.priceDay;
+  const fee=Math.round(sub*FEE_RATE*100)/100;
+  const insurance=ins?insPrice(sub):0;
+  return {days,subtotal:sub,fee,deposit:it.deposit,insurance,total:Math.round((sub+fee+it.deposit)*100)/100};
+}
+
+/* ============ Estado y almacenamiento ============ */
+const KEY="alquilaap-demo-v5";
+let S;
+try{const raw=localStorage.getItem(KEY);S=raw?JSON.parse(raw):null}catch(e){S=null}
+if(!S||S.v!==1)S=seed();
+function save(){try{localStorage.setItem(KEY,JSON.stringify(S));return true}catch(e){toast("No se ha podido guardar en este navegador (¿demasiadas fotos?).");return false}}
+const UI={view:"inicio",param:null,q:"",fcat:"",fmin:"",fmax:"",fradius:"50",fstart:"",fend:"",fsort:"relevancia",fmode:"lista",calM:0,selS:"",selE:"",photoIx:0,thread:null,draft:null,modal:null,resTab:"inquilino"};
+
+const me=()=>S.users.find(u=>u.id===S.me)||null;
+const user=id=>S.users.find(u=>u.id===id)||{name:"Usuario",color:"#777",verified:{}};
+const item=id=>S.items.find(i=>i.id===id);
+const myLoc=()=>CITIES[S.myCity]||CITIES.Barcelona;
+const boostActive=it=>it.boost&&it.boost.until>Date.now();
+function isPro(uid){const u=S.users.find(x=>x.id===uid);return !!(u&&u.pro&&u.pro>Date.now())}
+const proCount=()=>S.users.filter(u=>isPro(u.id)).length;
+const boostRank=it=>Math.max(boostActive(it)?(PACKS.find(p=>p.id===it.boost.pack)||{rank:0}).rank:0,isPro(it.ownerId)?1.5:0);
+const slug=t=>t.normalize("NFD").replace(/[\u0300-\u036f]/g,"").toLowerCase().replace(/[^a-z0-9]+/g,"-").replace(/^-|-$/g,"");
+const citySlug=c=>slug(c), cityFromSlug=s=>Object.keys(CITIES).find(c=>slug(c)===s);
+const landingItems=(catId,city)=>S.items.filter(i=>i.active&&i.cat===catId&&km(CITIES[city],i.loc)<=25);
+const landingHref=(catId,city)=>"#alquilar-"+catId+"-"+citySlug(city);
+let SAMPLE=null;
+const isVerified=u=>!!(u&&u.verified&&u.verified.phone&&u.verified.dni);
+function userStats(uid){const done=S.bookings.filter(b=>b.status==="finalizada"&&(b.ownerId===uid||b.renterId===uid));const revs=[];done.forEach(b=>{if(b.ownerId===uid&&b.reviews.renter)revs.push(b.reviews.renter);if(b.renterId===uid&&b.reviews.owner)revs.push(b.reviews.owner)});const avg=revs.length?revs.reduce((a,r)=>a+r.stars,0)/revs.length:0;return {done:done.length,revs:revs.length,avg}}
+function trustLine(uid){const st=userStats(uid);return `${st.revs?`<span class="stars">★</span> ${st.avg.toFixed(1).replace(".",",")} (${st.revs})`:"Sin valoraciones aún"} · ${st.done} alquiler${st.done===1?"":"es"} completado${st.done===1?"":"s"}`}
+const bothDone=x=>x&&x.owner&&x.renter;
+const premiumOwner=uid=>S.items.some(i=>i.ownerId===uid&&boostActive(i)&&i.boost.pack==="premium");
+const busyDates=it=>{const set=new Set(it.blocked||[]);S.bookings.filter(b=>b.itemId===it.id&&["aceptada","pagada","en_curso"].includes(b.status)).forEach(b=>{let d=parse(b.start);const e=parse(b.end);while(d<=e){set.add(iso(d));d=addDays(d,1)}});return set};
+const rangeFree=(it,s,e)=>{const busy=busyDates(it);let d=parse(s);const end=parse(e);while(d<=end){if(busy.has(iso(d)))return false;d=addDays(d,1)}return true};
+const threadKey=(itemId,renterId)=>itemId+"|"+renterId;
+function threadsFor(uid){
+  const keys=new Set();S.messages.forEach(m=>keys.add(m.thread));S.bookings.forEach(b=>keys.add(threadKey(b.itemId,b.renterId)));
+  return [...keys].map(k=>{const [itemId,renterId]=k.split("|");const it=item(itemId);if(!it)return null;if(it.ownerId!==uid&&renterId!==uid)return null;const msgs=S.messages.filter(m=>m.thread===k);const last=msgs[msgs.length-1];const other=it.ownerId===uid?renterId:it.ownerId;const unread=msgs.filter(m=>m.from!==uid&&m.at>(S.read[uid+"#"+k]||0)).length;return {k,it,other,last,unread,at:last?last.at:0}}).filter(Boolean).sort((a,b)=>b.at-a.at);
+}
+const unreadCount=()=>S.me?threadsFor(S.me).reduce((a,t)=>a+t.unread,0):0;
+const pendingOwner=()=>S.me?S.bookings.filter(b=>b.ownerId===S.me&&b.status==="solicitada").length:0;
+
+/* ============ Render helpers ============ */
+function photo(it,ix,size){
+  const c=cat(it.cat);
+  if(it.photos&&it.photos.length){return `<div class="ph"><img src="${it.photos[Math.min(ix||0,it.photos.length-1)]}" alt="${esc(it.title)}">${size||""}</div>`}
+  return `<div class="ph" style="background:linear-gradient(135deg,${c.c}22,${c.c}44);color:${c.c}">${svg(it.cat,"big")}${size||""}</div>`;
+}
+function card(it){
+  const d=km(myLoc(),it.loc), b=boostActive(it);
+  const extra=`${b?'<span class="badge pill tag">'+svg("bolt","",'style="width:12px;height:12px"')+' Destacado</span>':(isPro(it.ownerId)?'<span class="badge pill info" style="background:var(--surface);color:var(--brand)">Tienda Pro</span>':'')}<span class="dist">${fmtKm(d)}</span>`;
+  return `<a class="item ${b?"boosted":""}" href="#anuncio-${it.id}">${photo(it,0,extra)}
+  <div class="body"><div class="price num">${eur(it.priceDay)} <small>/ día</small></div><div class="t">${esc(it.title)}</div>
+  <div class="meta"><span>${esc(it.city)}</span>·<span><span class="stars">★</span> ${it.rating.toFixed(1).replace(".",",")}</span>${it.deposit?`·<span>Fianza ${eur(it.deposit)}</span>`:""}</div></div></a>`;
+}
+function avatar(u,sm){return `<span class="av ${sm?"sm":""}" style="background:${u.color}">${esc(initials(u.name))}</span>`}
+function statusPill(s,b){const n=x=>(x&&x.owner?1:0)+(x&&x.renter?1:0);const m={solicitada:["warn","Pendiente"],aceptada:["info",`Aceptada · alquilado ${b?n(b.pickup):0}/2`],pagada:["ok","Alquilado"],en_curso:["ok",`Alquilado · finalizado ${b?n(b.ret):0}/2`],finalizada:["ok","Finalizado por ambos"],incidencia:["bad","Incidencia abierta"],rechazada:["bad","Rechazada"],cancelada:["bad","Cancelada"]};const x=m[s]||["grey",s];return `<span class="pill ${x[0]}">${x[1]}</span>`}
+
+function filtered(){
+  const q=UI.q.trim().toLowerCase(), L=myLoc();
+  let r=S.items.filter(i=>i.active);
+  if(q)r=r.filter(i=>(i.title+" "+i.desc+" "+cat(i.cat).n+" "+i.city).toLowerCase().includes(q));
+  if(UI.fcat)r=r.filter(i=>i.cat===UI.fcat);
+  if(UI.fmin!=="")r=r.filter(i=>i.priceDay>=+UI.fmin);
+  if(UI.fmax!=="")r=r.filter(i=>i.priceDay<=+UI.fmax);
+  if(UI.fradius!=="all")r=r.filter(i=>km(L,i.loc)<=+UI.fradius);
+  if(UI.fstart&&UI.fend&&UI.fend>=UI.fstart)r=r.filter(i=>rangeFree(i,UI.fstart,UI.fend));
+  const dist=i=>km(L,i.loc);
+  const sorts={relevancia:(a,b)=>boostRank(b)-boostRank(a)||dist(a)-dist(b),cerca:(a,b)=>boostRank(b)-boostRank(a)||dist(a)-dist(b),barato:(a,b)=>boostRank(b)-boostRank(a)||a.priceDay-b.priceDay,nuevo:(a,b)=>boostRank(b)-boostRank(a)||b.created-a.created};
+  return r.sort(sorts[UI.fsort]||sorts.relevancia);
+}
+
+/* ============ Shell ============ */
+function shell(inner){
+  const u=me(), un=unreadCount(), po=pendingOwner();
+  const nav=[["inicio","Inicio","home"],["buscar","Buscar","search"],["publicar","Publicar","plus"],["mensajes","Mensajes","chat"],["perfil",u?"Perfil":"Entrar","user"]];
+  const on=v=>UI.view===v||(v==="perfil"&&["mis-anuncios","reservas","negocio"].includes(UI.view))||(v==="buscar"&&UI.view==="anuncio");
+  return `
+  <header class="top"><div class="wrap">
+    <a class="logo" href="#inicio"><span class="mark">${svg("key")}</span><span>Alquila<b>ap</b></span></a>
+    <form class="topsearch searchbox" data-act="topsearch">${svg("search")}<input id="topq" class="input" placeholder="Busca bicis, taladros, cámaras…" value="${esc(UI.q)}" aria-label="Buscar"></form>
+    <div class="spacer"></div>
+    <nav class="topnav">
+      <a href="#buscar" class="${on("buscar")?"on":""}">Explorar</a>
+      <a href="#mis-anuncios" class="${UI.view==="mis-anuncios"?"on":""}">Mis anuncios</a>
+      <a href="#reservas" class="${UI.view==="reservas"?"on":""}">Reservas${po?`<span class="dot">${po}</span>`:""}</a>
+      <a href="#mensajes" class="${on("mensajes")?"on":""}">Mensajes${un?`<span class="dot">${un}</span>`:""}</a>
+      <a href="#publicar" class="btn primary sm" style="color:var(--brand-ink);background:var(--brand)">${svg("plus")} Publicar gratis</a>
+      ${u?`<a href="#perfil" title="Mi perfil" style="padding:4px">${avatar(u,true)}</a>`:`<a href="#perfil" class="btn sm">Entrar</a>`}
+    </nav>
+  </div></header>
+  <div class="demo"><div class="wrap"><span class="pill tag">Demo</span><span>Los datos son de ejemplo y se guardan solo en este navegador. La compra de packs está en modo prueba: no se cobra nada.</span></div></div>
+  <main>${inner}</main>
+  <footer class="footer"><div class="wrap" style="flex-direction:column;align-items:flex-start;gap:8px"><span class="label">Búsquedas populares</span><div class="row" style="gap:6px">${popularLinks(10)}</div></div><div class="wrap"><span>© ${new Date().getFullYear()} Alquilaap</span><span>Publicar es gratis siempre</span><span>Sin comisiones por alquilar</span><span class="spacer"></span><button class="btn sm ghost" data-act="reset">Restablecer demo</button></div></footer>
+  <nav class="tabs">${nav.map(([v,l,i])=>`<a href="#${v}" class="${on(v)?"on":""} ${v==="publicar"?"pub":""}"><span class="ic">${svg(i)}</span>${l}${v==="mensajes"&&un?`<span class="dot">${un}</span>`:""}${v==="perfil"&&po?`<span class="dot">${po}</span>`:""}</a>`).join("")}</nav>
+  ${UI.modal?modalHTML():""}`;
+}
+
+/* ============ Vistas ============ */
+function vInicio(){
+  const L=myLoc();
+  const feat=S.items.filter(i=>i.active&&boostActive(i)&&i.boost.pack!=="basico").sort((a,b)=>boostRank(b)-boostRank(a)||km(L,a.loc)-km(L,b.loc));
+  const near=S.items.filter(i=>i.active).sort((a,b)=>km(L,a.loc)-km(L,b.loc)).slice(0,8);
+  return `
+  <section class="hero"><div class="wrap">
+    <h1>Alquila lo que necesitas. <em>Gana</em> con lo que no usas.</h1>
+    <p>Bicis, herramientas, cámaras, material de camping… Publicar es gratis y cobras por días. Tú pones el precio y la fianza.</p>
+    <form class="herosearch" data-act="herosearch">
+      <div class="searchbox">${svg("search")}<input id="heroq" class="input" placeholder="¿Qué necesitas alquilar?" aria-label="Qué buscas"></div>
+      <select id="herocity" class="input" aria-label="Ciudad">${Object.keys(CITIES).map(c=>`<option ${c===S.myCity?"selected":""}>${c}</option>`).join("")}</select>
+      <button class="btn primary">Buscar</button>
+    </form>
+    <div class="stats"><div><b class="num">${S.items.filter(i=>i.active).length}</b><span>objetos para alquilar</span></div><div><b>0 €</b><span>por publicar</span></div><div><b>0 %</b><span>de comisión por alquilar</span></div></div>
+  </div></section>
+
+  <div class="wrap">
+    <section class="section">
+      <div class="sechead"><h2>Categorías</h2></div>
+      <div class="cats">${CATS.map(c=>`<button class="cat" data-act="gocat" data-id="${c.id}"><span class="ico" style="background:${c.c}1f;color:${c.c}">${svg(c.id)}</span>${c.n}</button>`).join("")}</div>
+    </section>
+
+    ${feat.length?`<section class="section">
+      <div class="sechead"><div><span class="label">Patrocinado</span><h2>Destacados cerca de ti</h2></div><span class="spacer"></span><a href="#negocio-packs" class="small">¿Quieres salir aquí?</a></div>
+      <div class="hscroll">${feat.map(card).join("")}</div>
+    </section>`:""}
+
+    <section class="section">
+      <div class="sechead"><div><span class="label">${esc(S.myCity)}</span><h2>Cerca de ti</h2></div><span class="spacer"></span><a href="#buscar" class="btn sm">Ver todo</a></div>
+      <div class="grid g4">${near.map(card).join("")}</div>
+    </section>
+
+    <section class="section" id="como">
+      <div class="sechead"><h2>Cómo funciona</h2></div>
+      <div class="how">
+        <div class="card"><span class="n">1 · Publica gratis</span><h3>Sube fotos y pon tu precio</h3><p class="muted small">Precio por día y por semana, fianza y las fechas en que lo tienes libre.</p></div>
+        <div class="card"><span class="n">2 · Recibe solicitudes</span><h3>Tú decides a quién</h3><p class="muted small">Ves el perfil verificado y las valoraciones del inquilino antes de aceptar.</p></div>
+        <div class="card"><span class="n">3 · Quedad y entregad</span><h3>El pago es entre vosotros</h3><p class="muted small">Alquilaap no cobra ni retiene nada. Pagáis el alquiler y la fianza en mano o por Bizum al recoger.</p></div>
+        <div class="card"><span class="n">4 · Valoraciones</span><h3>Reseñas por ambos lados</h3><p class="muted small">Propietario e inquilino se valoran al terminar. La confianza hace crecer tus alquileres.</p></div>
+      </div>
+    </section>
+
+    <section class="section">
+      <div class="card pad split">
+        <div class="stack"><span class="label">Para propietarios</span><h2>Más visitas cuando más lo necesitas</h2><p class="muted">Tu anuncio es gratis para siempre. Si quieres alquilarlo antes, activa un pack de visibilidad y aparece primero en las búsquedas de tu zona.</p><div class="row"><a class="btn tag" href="#negocio-packs">${svg("bolt")} Ver packs de visibilidad</a><a class="btn" href="#mis-anuncios">Soy tienda: ${PRO.name}</a></div></div>
+        <div class="stack"><div class="row" style="justify-content:space-between;border-bottom:1px solid var(--line);padding-bottom:10px"><div><b>Gratis</b><div class="tiny">Tu anuncio visible siempre, detrás de los destacados</div></div><b class="num">0 €</b></div>${PACKS.map(p=>`<div class="row" style="justify-content:space-between;border-bottom:1px solid var(--line);padding-bottom:10px"><div><b>${p.name}</b><div class="tiny">${esc(p.perks[0])}</div></div><b class="num">${eur2(p.price)}</b></div>`).join("")}</div>
+      </div>
+    </section>
+  </div>`;
+}
+
+function vBuscar(){
+  const r=filtered(), L=myLoc();
+  const f=`<aside class="filters card pad">
+    <div class="row"><h3>Filtros</h3><span class="spacer"></span><button class="btn sm ghost" data-act="clearf">Limpiar</button></div>
+    <label class="field"><span>Ciudad</span><select id="fcity" class="input" data-f="city">${Object.keys(CITIES).map(c=>`<option ${c===S.myCity?"selected":""}>${c}</option>`).join("")}</select></label>
+    <label class="field"><span>Distancia</span><select id="fradius" class="input" data-f="fradius">${[["2","2 km"],["5","5 km"],["10","10 km"],["25","25 km"],["50","50 km"],["all","Toda España"]].map(([v,l])=>`<option value="${v}" ${UI.fradius===v?"selected":""}>${l}</option>`).join("")}</select></label>
+    <label class="field"><span>Categoría</span><select id="fcat" class="input" data-f="fcat"><option value="">Todas</option>${CATS.map(c=>`<option value="${c.id}" ${UI.fcat===c.id?"selected":""}>${c.n}</option>`).join("")}</select></label>
+    <div class="field"><span>Precio por día</span><div class="range2"><input id="fmin" class="input" type="number" min="0" placeholder="Mín." value="${esc(UI.fmin)}" data-f="fmin"><input id="fmax" class="input" type="number" min="0" placeholder="Máx." value="${esc(UI.fmax)}" data-f="fmax"></div></div>
+    <div class="field"><span>Disponible entre</span><div class="range2"><input id="fstart" class="input" type="date" min="${iso(today())}" value="${esc(UI.fstart)}" data-f="fstart"><input id="fend" class="input" type="date" min="${iso(today())}" value="${esc(UI.fend)}" data-f="fend"></div></div>
+  </aside>`;
+  const mode=UI.fmode;
+  let res;
+  if(!r.length)res=`<div class="card empty"><h3>No hay resultados con estos filtros</h3><p>Prueba a ampliar la distancia o quitar las fechas.</p><button class="btn" data-act="clearf">Quitar filtros</button></div>`;
+  else if(mode==="mapa")res=mapHTML(r,L);
+  else res=`<div class="grid">${r.map(card).join("")}</div>`;
+  return `<div class="wrap searchlayout">${f}
+  <div class="stack" style="min-width:0">
+    <div class="searchbox">${svg("search")}<input id="q2" class="input" placeholder="Busca por palabra clave" value="${esc(UI.q)}" data-f="q" aria-label="Buscar"></div>
+    <div class="row" style="overflow-x:auto;flex-wrap:nowrap;padding-bottom:4px"><button class="chip ${!UI.fcat?"on":""}" data-act="setcat" data-id="">Todo</button>${CATS.map(c=>`<button class="chip ${UI.fcat===c.id?"on":""}" data-act="setcat" data-id="${c.id}" style="flex:none">${c.n}</button>`).join("")}</div>
+    <div class="row"><b class="num">${r.length} resultado${r.length===1?"":"s"}</b><span class="muted small">cerca de ${esc(S.myCity)}</span><span class="spacer"></span>
+      <select id="fsort" class="input" style="width:auto" data-f="fsort" aria-label="Ordenar">${[["relevancia","Relevancia"],["cerca","Más cerca"],["barato","Más barato"],["nuevo","Más nuevo"]].map(([v,l])=>`<option value="${v}" ${UI.fsort===v?"selected":""}>${l}</option>`).join("")}</select>
+      <button class="btn sm ${mode==="lista"?"primary":""}" data-act="mode" data-id="lista">${svg("list")} Lista</button><button class="btn sm ${mode==="mapa"?"primary":""}" data-act="mode" data-id="mapa">${svg("map")} Mapa</button></div>
+    ${res}
+  </div></div>`;
+}
+function mapHTML(r,L){
+  const maxD=Math.max(2,...r.map(i=>km(L,i.loc)))*1.15;
+  const kmLat=111, kmLng=111*Math.cos(L[0]*Math.PI/180);
+  const W=400,H=300,sc=Math.min(W,H)/2/maxD;
+  const pt=i=>[W/2+(i.loc[1]-L[1])*kmLng*sc, H/2-(i.loc[0]-L[0])*kmLat*sc];
+  const rings=[maxD/3,2*maxD/3,maxD].map(d=>`<circle cx="${W/2}" cy="${H/2}" r="${d*sc}" fill="none" stroke="var(--line)" stroke-dasharray="3 4"/><text x="${W/2+4}" y="${H/2-d*sc+12}" font-size="9" fill="var(--ink-3)">${fmtKm(d)}</text>`).join("");
+  const pins=r.map(i=>{const [x,y]=pt(i);const b=boostActive(i);return `<g class="pin" data-act="open" data-id="${i.id}"><title>${esc(i.title)} · ${eur(i.priceDay)}/día</title><rect x="${x-20}" y="${y-22}" width="40" height="17" rx="8" fill="${b?"var(--tag)":"var(--surface)"}" stroke="${b?"var(--tag)":"var(--ink-3)"}"/><text x="${x}" y="${y-10}" text-anchor="middle" font-size="10" font-weight="700" fill="${b?"var(--tag-ink)":"var(--ink)"}">${Math.round(i.priceDay)} €</text><circle cx="${x}" cy="${y}" r="3" fill="var(--brand)"/></g>`}).join("");
+  return `<div class="mapbox"><svg viewBox="0 0 ${W} ${H}" role="img" aria-label="Mapa de resultados">${rings}<circle cx="${W/2}" cy="${H/2}" r="6" fill="var(--brand)" stroke="var(--surface)" stroke-width="2"/>${pins}</svg></div><p class="tiny">Mapa esquemático centrado en ${esc(S.myCity)}. Toca un precio para ver el anuncio. En la versión de producción se usa un mapa real.</p>`;
+}
+
+function calHTML(it,mode){
+  const base=addDays(today(),0);const first=new Date(base.getFullYear(),base.getMonth()+UI.calM,1);
+  const busy=mode==="edit"?new Set():busyDates(it);const blk=new Set(mode==="edit"?(UI.draft.blocked||[]):(it.blocked||[]));
+  const startDow=(first.getDay()+6)%7;const dim=new Date(first.getFullYear(),first.getMonth()+1,0).getDate();
+  let cells="";for(let i=0;i<startDow;i++)cells+=`<span class="d empty"></span>`;
+  const T=iso(today());
+  for(let d=1;d<=dim;d++){const ds=iso(new Date(first.getFullYear(),first.getMonth(),d));let cls="d";
+    if(ds<T)cls+=" past";else if(blk.has(ds))cls+=" blk";else if(busy.has(ds))cls+=" bkd";
+    if(mode!=="edit"&&UI.selS){if(ds===UI.selS||ds===UI.selE)cls+=" sel";else if(UI.selE&&ds>UI.selS&&ds<UI.selE)cls+=" mid"}
+    cells+=`<span class="${cls}" data-act="${mode==="edit"?"toggleblk":"pickday"}" data-id="${ds}" role="button" tabindex="0">${d}</span>`}
+  let title=first.toLocaleDateString("es-ES",{month:"long",year:"numeric"});title=title.charAt(0).toUpperCase()+title.slice(1);
+  return `<div class="cal"><div class="hd"><button class="btn sm ghost" data-act="calprev" ${UI.calM<=0?"disabled":""} aria-label="Mes anterior">‹</button><span>${title}</span><button class="btn sm ghost" data-act="calnext" aria-label="Mes siguiente">›</button></div>
+  <div class="gridc">${["L","M","X","J","V","S","D"].map(x=>`<span class="dow">${x}</span>`).join("")}${cells}</div>
+  <div class="legend" style="margin-top:8px">${mode==="edit"?`<span><i style="background:var(--surface-2)"></i>Bloqueado por ti</span><span>Toca un día para bloquearlo o liberarlo</span>`:`<span><i style="background:var(--brand)"></i>Tu selección</span><span><i style="background:var(--bad-soft)"></i>Reservado</span><span><i style="background:var(--surface-2)"></i>No disponible</span>`}</div></div>`;
+}
+
+function vAnuncio(id){
+  const it=item(id);if(!it)return `<div class="wrap"><div class="card empty" style="margin-top:20px"><h3>Este anuncio ya no existe</h3><a class="btn" href="#buscar">Volver a buscar</a></div></div>`;
+  const o=user(it.ownerId), mine=S.me===it.ownerId, c=cat(it.cat), d=km(myLoc(),it.loc);
+  const q=UI.selS&&UI.selE?quote(it,UI.selS,UI.selE):null;
+  const ok=q&&rangeFree(it,UI.selS,UI.selE);
+  const revs=S.bookings.filter(b=>b.itemId===it.id&&b.reviews.renter);
+  const imgs=it.photos&&it.photos.length?it.photos:[];
+  return `<div class="wrap detail">
+    <div class="stack" style="min-width:0">
+      <div><a href="#buscar" class="btn sm ghost" style="padding-left:0">${svg("back")} Volver</a></div>
+      <div class="gallery"><div class="main">${photo(it,UI.photoIx,boostActive(it)?'<span class="badge pill tag">'+svg("bolt","",'style="width:12px;height:12px"')+' Destacado</span>':'')}</div>
+      ${imgs.length>1?`<div class="thumbs">${imgs.map((p,i)=>`<button class="${i===UI.photoIx?"on":""}" data-act="thumb" data-id="${i}"><img src="${p}" alt="Foto ${i+1}"></button>`).join("")}</div>`:""}</div>
+      <div class="stack"><div class="row"><span class="pill grey">${c.n}</span><span class="tiny">${svg("pin","",'style="width:14px;height:14px;vertical-align:-2px"')} ${esc(it.city)} · a ${fmtKm(d)}</span><span class="tiny">${it.views} visitas</span></div>
+      <h1 style="font-size:clamp(24px,4vw,34px)">${esc(it.title)}</h1>
+      <div class="row"><span class="stars">★★★★★</span><b>${it.rating.toFixed(1).replace(".",",")}</b><span class="muted small">(${it.reviews+revs.length} valoraciones)</span></div></div>
+      <div class="specs"><div class="spec"><span class="tiny">Por día</span><b class="num">${eur(it.priceDay)}</b></div>${it.priceWeek?`<div class="spec"><span class="tiny">Por semana</span><b class="num">${eur(it.priceWeek)}</b></div>`:""}<div class="spec"><span class="tiny">Fianza</span><b class="num">${eur(it.deposit)}</b></div><div class="spec"><span class="tiny">Publicado</span><b>${ago(it.created)}</b></div></div>
+      <div class="stack"><h3>Descripción</h3><p class="muted" style="max-width:65ch;white-space:pre-line">${esc(it.desc)}</p></div>
+      <div class="card pad owner" style="flex-wrap:wrap">${avatar(o)}<div class="grow" style="flex:1;min-width:0"><b>${esc(o.name)}</b> ${isVerified(o)?'<span class="pill ok">'+svg("shield","",'style="width:12px;height:12px"')+' Verificado</span>':''} ${premiumOwner(o.id)?'<span class="pill tag">Propietario destacado</span>':''} ${isPro(o.id)?'<span class="pill info">Tienda Pro</span>':''}<div class="tiny">${trustLine(o.id)} · desde ${o.joined}</div></div>${!mine?`<button class="btn sm" data-act="contact" data-id="${it.id}">${svg("chat")} Contactar</button>`:""}</div>
+      ${revs.length?`<div class="stack"><h3>Valoraciones</h3>${revs.map(b=>{const r=user(b.renterId);return `<div class="card pad stack" style="gap:6px"><div class="row">${avatar(r,true)}<b>${esc(r.name)}</b><span class="stars">${"★".repeat(b.reviews.renter.stars)}</span></div><p class="muted small">${esc(b.reviews.renter.text)}</p></div>`}).join("")}</div>`:""}
+    </div>
+    <aside class="bookbox card pad stack">
+      ${mine?`<h3>Es tu anuncio</h3><p class="muted small">${boostActive(it)?`Pack <b>${PACKS.find(p=>p.id===it.boost.pack).name}</b> activo hasta el ${new Date(it.boost.until).toLocaleDateString("es-ES",{day:"numeric",month:"long"})}.`:"Ahora mismo no tiene ningún pack activo."}</p>
+        <button class="btn tag block" data-act="boost" data-id="${it.id}">${svg("bolt")} ${boostActive(it)?"Ampliar visibilidad":"Destacar anuncio"}</button>
+        <a class="btn block" href="#editar-${it.id}">Editar anuncio y calendario</a>${calHTML(it,"view")}`:
+      `<div class="row" style="align-items:baseline"><span class="price" style="font-family:var(--f-display);font-weight:800;font-size:28px">${eur(it.priceDay)}</span><span class="muted">/ día</span></div>
+       <p class="small muted">${svg("cal","",'style="width:16px;height:16px;vertical-align:-3px"')} Elige el día de recogida y el de devolución</p>
+       ${calHTML(it,"view")}
+       <div class="range2"><label class="field"><span>Recogida</span><input id="selS" class="input" type="date" min="${iso(today())}" value="${UI.selS}" data-act="seldate"></label><label class="field"><span>Devolución</span><input id="selE" class="input" type="date" min="${UI.selS||iso(today())}" value="${UI.selE}" data-act="seldate"></label></div>
+       ${q?`<div class="sum num"><span>${eur(it.priceDay)} × ${q.days} día${q.days>1?"s":""}${q.days>=7&&it.priceWeek?" (tarifa semanal)":""}</span><span>${eur2(q.subtotal)}</span>${q.fee?`<span>Servicio (${Math.round(FEE_RATE*100)} %)</span><span>${eur2(q.fee)}</span>`:""}<span>Fianza (se devuelve)</span><span>${eur2(q.deposit)}</span><span class="tot">Total a pagar al propietario</span><span class="tot">${eur2(q.total)}</span></div>
+         <label class="row" style="gap:10px;align-items:flex-start;background:var(--surface-2);border-radius:10px;padding:10px 12px;cursor:pointer;flex-wrap:nowrap"><input id="insbox" type="checkbox" data-act="ins" ${UI.ins?"checked":""} style="margin-top:3px"><span class="small"><b>${INS.name} · ${eur2(insPrice(q.subtotal))}</b><br><span class="muted">Opcional. Cubre daños y robo hasta ${eur(INS.cover)}. Lo da nuestra aseguradora asociada y se paga con tarjeta al reservar.</span></span></label>
+         ${ok?"":`<p class="pill bad" style="align-self:start">Hay días no disponibles en ese rango</p>`}`:""}
+       <button class="btn primary block" data-act="request" data-id="${it.id}" ${q&&ok?"":"disabled"}>${isPro(it.ownerId)?svg("bolt")+" Reservar ahora":"Solicitar reserva"}</button>${isPro(it.ownerId)?'<p class="tiny">Reserva inmediata: esta tienda Pro confirma al momento.</p>':""}
+       <p class="tiny">${svg("shield","",'style="width:14px;height:14px;vertical-align:-2px"')} Los dos tenéis la identidad verificada. Al recoger y al devolver, ambos lo marcáis en la app.</p><p class="tiny">Alquilaap no cobra nada por alquilar. El pago y la fianza se acuerdan con ${esc(o.name.split(" ")[0])} y se entregan al recoger (efectivo, Bizum o transferencia).</p>`}
+    </aside>
+  </div>`;
+}
+
+function vPublicar(editId){
+  if(!me())return needLogin("publicar tu anuncio");
+  if(!isVerified(me()))return `<div class="wrap section" style="max-width:560px"><div class="card pad stack"><span class="label">Antes de publicar</span><h2>Verifica tu identidad</h2><p class="muted">Para evitar robos, todas las personas que publican o alquilan en Alquilaap dan sus datos reales y verifican su DNI o NIE. Solo se tarda 2 minutos.</p><button class="btn primary" data-act="kyc">Verificar mi identidad</button></div></div>`;
+  if(!UI.draft||UI.draft._for!==(editId||"new")){
+    const it=editId&&item(editId);
+    UI.draft=it?Object.assign({_for:editId},JSON.parse(JSON.stringify(it))):{_for:"new",title:"",desc:"",cat:"bicis",priceDay:"",priceWeek:"",deposit:"",city:S.myCity,cp:"",photos:[],blocked:[]};
+    UI.calM=0;
+  }
+  const d=UI.draft;
+  return `<div class="wrap" style="padding-block:20px;max-width:860px">
+  <form class="stack" data-act="saveitem" style="gap:20px">
+    <div><span class="label">${editId?"Editar anuncio":"Publicar es gratis"}</span><h1 style="font-size:clamp(26px,4vw,36px)">${editId?"Edita tu anuncio":"¿Qué quieres alquilar?"}</h1></div>
+    <div class="card pad stack"><h3>Fotos</h3><p class="tiny">Hasta 6 fotos. La primera será la portada.</p>
+      ${SAMPLE?`<div class="row" style="background:var(--brand-soft);border-radius:10px;padding:10px 12px">${svg("bolt","",'style="width:18px;height:18px;flex:none;color:var(--brand)"')}<span class="small" style="flex:1;min-width:180px">${UI.aiMsg||(d.photos.length?"La IA puede rellenar título, categoría, descripción y precios a partir de la primera foto.":"Sube una foto y la IA rellena el anuncio por ti.")}</span>${d.photos.length?`<button type="button" class="btn sm primary" data-act="aifill" ${UI.aiBusy?"disabled":""}>${UI.aiBusy?"Analizando…":"Rellenar con IA"}</button>`:""}</div>`:""}
+      <div class="photos">${d.photos.map((p,i)=>`<div class="p"><img src="${p}" alt="Foto ${i+1}"><button type="button" data-act="rmphoto" data-id="${i}" aria-label="Quitar foto">×</button></div>`).join("")}
+      ${d.photos.length<6?`<label class="drop" for="photoin">+ Añadir<br>fotos</label>`:""}<input id="photoin" type="file" accept="image/*" multiple hidden></div></div>
+    <div class="card pad formgrid">
+      <label class="field"><span>Título</span><input id="d_title" class="input" required maxlength="70" placeholder="Ej.: Bici gravel talla M con bolsas" value="${esc(d.title)}" data-d="title"></label>
+      <label class="field"><span>Categoría</span><select id="d_cat" class="input" data-d="cat">${CATS.map(c=>`<option value="${c.id}" ${d.cat===c.id?"selected":""}>${c.n}</option>`).join("")}</select></label>
+      <label class="field"><span>Descripción</span><textarea id="d_desc" class="input" required placeholder="Estado, qué incluye, condiciones de uso, horario de recogida…" data-d="desc">${esc(d.desc)}</textarea></label>
+    </div>
+    <div class="card pad formgrid three">
+      <label class="field"><span>Precio por día (€)</span><input id="d_pd" class="input" type="number" min="1" step="0.5" required value="${esc(d.priceDay)}" data-d="priceDay"></label>
+      <label class="field"><span>Precio por semana (€)</span><input id="d_pw" class="input" type="number" min="0" step="0.5" placeholder="Opcional" value="${esc(d.priceWeek||"")}" data-d="priceWeek"></label>
+      <label class="field"><span>Fianza (€)</span><input id="d_dep" class="input" type="number" min="0" step="5" required value="${esc(d.deposit)}" data-d="deposit"></label>
+    </div>
+    <div class="card pad formgrid two">
+      <label class="field"><span>Ciudad</span><select id="d_city" class="input" data-d="city">${Object.keys(CITIES).map(c=>`<option ${c===d.city?"selected":""}>${c}</option>`).join("")}</select></label>
+      <label class="field"><span>Código postal</span><input id="d_cp" class="input" inputmode="numeric" maxlength="5" placeholder="08001" value="${esc(d.cp||"")}" data-d="cp"></label>
+      <p class="tiny" style="grid-column:1/-1">Solo mostramos la distancia aproximada. La dirección exacta se comparte al confirmar la reserva.</p>
+    </div>
+    <div class="card pad stack"><h3>Disponibilidad</h3><p class="tiny">Todo está disponible por defecto. Bloquea los días en que no puedes alquilarlo.</p><div style="max-width:380px">${calHTML(null,"edit")}</div></div>
+    <div class="row"><button class="btn primary">${editId?"Guardar cambios":"Publicar gratis"}</button>${editId?`<button type="button" class="btn danger" data-act="pause" data-id="${editId}">${item(editId).active?"Pausar anuncio":"Reactivar anuncio"}</button>`:""}<a href="${editId?"#anuncio-"+editId:"#inicio"}" class="btn ghost">Cancelar</a></div>
+  </form></div>`;
+}
+
+function vMisAnuncios(){
+  if(!me())return needLogin("ver tus anuncios");
+  const mine=S.items.filter(i=>i.ownerId===S.me);
+  const earn=S.bookings.filter(b=>b.ownerId===S.me&&["pagada","en_curso","finalizada"].includes(b.status)).reduce((a,b)=>a+b.subtotal,0);
+  return `<div class="wrap section">
+    <div class="sechead"><div><span class="label">Panel del propietario</span><h1 style="font-size:clamp(26px,4vw,36px)">Mis anuncios</h1></div><span class="spacer"></span><a class="btn primary" href="#publicar">${svg("plus")} Nuevo anuncio</a></div>
+    ${isPro(S.me)?`<div class="card pad row" style="border-color:var(--brand)"><span class="pill info">Tienda Pro</span><span class="small">Tus anuncios salen por delante de los gratuitos y tienes reserva inmediata. Activo hasta el ${new Date(me().pro).toLocaleDateString("es-ES",{day:"numeric",month:"long"})}.</span></div>`:
+    `<div class="card pad row" style="justify-content:space-between"><div class="stack" style="gap:2px;flex:1;min-width:220px"><b>¿Tienes una tienda o alquilas a menudo?</b><span class="small muted">Con ${PRO.name} todos tus anuncios salen por delante de los gratuitos y los clientes reservan al momento.</span></div><button class="btn primary" data-act="gopro">Hazte Pro · ${eur2(PRO.price)}/mes</button></div>`}
+    <div class="kpis"><div class="card kpi"><span class="tiny">Anuncios activos</span><b>${mine.filter(i=>i.active).length}</b></div><div class="card kpi"><span class="tiny">Visitas totales</span><b>${mine.reduce((a,i)=>a+i.views,0)}</b></div><div class="card kpi"><span class="tiny">Solicitudes pendientes</span><b>${pendingOwner()}</b></div><div class="card kpi"><span class="tiny">Ingresos por alquileres</span><b>${eur(earn)}</b></div></div>
+    <div class="card pad">${mine.length?`<div class="list">${mine.map(it=>`<div class="li"><a class="th" href="#anuncio-${it.id}">${photo(it,0)}</a><div class="grow"><div class="t">${esc(it.title)}</div><div class="row" style="gap:6px"><span class="tiny num">${eur(it.priceDay)}/día · ${it.views} visitas</span>${it.active?"":'<span class="pill grey">Pausado</span>'}${boostActive(it)?`<span class="pill tag">${PACKS.find(p=>p.id===it.boost.pack).name} · quedan ${remain(it.boost.until)}</span>`:""}</div></div><button class="btn sm tag" data-act="boost" data-id="${it.id}">${svg("bolt")}<span class="hide-sm">Destacar</span></button><a class="btn sm" href="#editar-${it.id}">Editar</a></div>`).join("")}</div>`:`<div class="empty"><h3>Aún no tienes anuncios</h3><p>Publicar es gratis y se tarda 2 minutos.</p><a class="btn primary" href="#publicar">Publicar mi primer objeto</a></div>`}</div>
+  </div>`;
+}
+function remain(t){const h=Math.max(0,Math.round((t-Date.now())/36e5));return h<48?h+" h":Math.round(h/24)+" días"}
+
+function vReservas(){
+  if(!me())return needLogin("ver tus reservas");
+  const tab=UI.resTab;
+  const list=S.bookings.filter(b=>tab==="inquilino"?b.renterId===S.me:b.ownerId===S.me).sort((a,b)=>b.created-a.created);
+  const row=b=>{const it=item(b.itemId);if(!it)return "";const otherId=tab==="inquilino"?b.ownerId:b.renterId;const other=user(otherId);const role=tab;const rk=role==="inquilino"?"renter":"owner";const fn=esc(other.name.split(" ")[0]);
+    let acts="",note="";
+    if(role==="propietario"&&b.status==="solicitada"){acts=`<button class="btn sm primary" data-act="bk" data-op="aceptar" data-id="${b.id}">Aceptar</button><button class="btn sm" data-act="bk" data-op="rechazar" data-id="${b.id}">Rechazar</button>`;note=`${isVerified(other)?"Identidad verificada":"Sin verificar"} · ${trustLine(otherId)}`}
+    if(b.status==="aceptada"){if(!(b.pickup||{})[rk])acts=`<button class="btn sm primary" data-act="bk" data-op="alquilado" data-id="${b.id}">Marcar como alquilado</button>`;else note=`Has marcado «alquilado». Falta que ${fn} lo marque.`}
+    if(role==="inquilino"&&["solicitada","aceptada"].includes(b.status)&&!(b.pickup||{}).renter)acts+=`<button class="btn sm" data-act="bk" data-op="cancelar" data-id="${b.id}">Cancelar</button>`;
+    if(["en_curso","pagada"].includes(b.status)){if(!(b.ret||{})[rk])acts=`<button class="btn sm primary" data-act="bk" data-op="finalizado" data-id="${b.id}">Marcar como finalizado</button><button class="btn sm danger" data-act="bk" data-op="problema" data-id="${b.id}">Hay un problema</button>`;else note=`Has marcado «finalizado». Falta que ${fn} lo marque.`}
+    if(b.status==="incidencia")note=`Incidencia: «${esc(b.issue||"")}». ${b.insurance?"El seguro ya tiene el parte abierto.":"El equipo de Alquilaap la está revisando."}`;
+    const myRev=role==="inquilino"?b.reviews.renter:b.reviews.owner;
+    if(b.status==="finalizada"&&!myRev)acts=`<button class="btn sm tag" data-act="review" data-id="${b.id}">Valorar a ${fn}</button>`;
+    acts+=`<a class="btn sm ghost" href="#mensajes" data-act="openthread" data-id="${threadKey(b.itemId,b.renterId)}" aria-label="Mensajes">${svg("chat")}</a>`;
+    return `<div class="li" style="flex-wrap:wrap"><a class="th" href="#anuncio-${it.id}">${photo(it,0)}</a><div class="grow"><div class="t">${esc(it.title)}</div><div class="tiny num">${fmtD(b.start)} → ${fmtD(b.end)} · ${b.days} día${b.days>1?"s":""} · ${role==="inquilino"?"Pagas "+eur2(b.total)+" al propietario":"Cobras "+eur2(b.subtotal)} · con ${esc(other.name)}</div><div class="row" style="gap:6px;margin-top:4px">${statusPill(b.status,b)}${b.insurance?'<span class="pill info">Asegurado</span>':""}${myRev?'<span class="pill grey">Ya valoraste</span>':""}</div>${note?`<div class="tiny" style="margin-top:4px">${note}</div>`:""}</div><div class="row acts" style="gap:6px">${acts}</div></div>`};
+  return `<div class="wrap section">
+    <div class="sechead"><h1 style="font-size:clamp(26px,4vw,36px)">Reservas</h1></div>
+    <div class="row"><button class="chip ${tab==="inquilino"?"on":""}" data-act="restab" data-id="inquilino">Lo que alquilo</button><button class="chip ${tab==="propietario"?"on":""}" data-act="restab" data-id="propietario">Mis objetos alquilados ${pendingOwner()?`<span class="pill bad">${pendingOwner()}</span>`:""}</button></div>
+    <div class="card pad">${list.length?`<div class="list">${list.map(row).join("")}</div>`:`<div class="empty"><h3>No hay reservas todavía</h3><a class="btn" href="#buscar">Explorar objetos</a></div>`}</div>
+  </div>`;
+}
+
+function vMensajes(){
+  if(!me())return needLogin("leer tus mensajes");
+  const th=threadsFor(S.me);
+  if(!UI.thread&&th.length&&window.innerWidth>=900)UI.thread=th[0].k;
+  const cur=th.find(t=>t.k===UI.thread);
+  if(cur){S.read[S.me+"#"+cur.k]=Date.now();save()}
+  const list=`<div class="card" style="padding:8px">${th.length?th.map(t=>{const o=user(t.other);return `<div class="thread ${t.k===UI.thread?"on":""}" data-act="openthread" data-id="${t.k}">${avatar(o,true)}<div style="flex:1;min-width:0"><div class="row" style="gap:6px;flex-wrap:nowrap"><b style="white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${esc(o.name)}</b><span class="spacer"></span><span class="tiny">${t.at?ago(t.at):""}</span></div><div class="tiny" style="white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${esc(t.it.title)}</div><div class="small muted" style="white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${t.last?esc(t.last.text):"Sin mensajes"}</div></div>${t.unread?`<span class="pill bad">${t.unread}</span>`:""}</div>`}).join(""):`<div class="empty"><p>Aún no tienes conversaciones.</p></div>`}</div>`;
+  let chat="";
+  if(cur){const o=user(cur.other);const msgs=S.messages.filter(m=>m.thread===cur.k);const bks=S.bookings.filter(b=>threadKey(b.itemId,b.renterId)===cur.k);
+    chat=`<div class="card chat"><div class="row" style="padding:12px;border-bottom:1px solid var(--line);flex-wrap:nowrap"><button class="btn sm ghost msgback" data-act="closethread" aria-label="Volver">${svg("back")}</button>${avatar(o,true)}<div style="min-width:0;flex:1"><b>${esc(o.name)}</b><div class="tiny" style="white-space:nowrap;overflow:hidden;text-overflow:ellipsis"><a href="#anuncio-${cur.it.id}">${esc(cur.it.title)}</a></div></div>${bks.length?statusPill(bks[bks.length-1].status):""}</div>
+    <div class="log" id="log">${msgs.map(m=>`<div class="bub ${m.from===S.me?"me":m.from==="sys"?"sys":""}">${esc(m.text)}</div>`).join("")||`<div class="bub sys">Escribe tu primer mensaje sobre «${esc(cur.it.title)}»</div>`}</div>
+    <form data-act="send"><input id="msgin" class="input" placeholder="Escribe un mensaje…" autocomplete="off" aria-label="Mensaje"><button class="btn primary">Enviar</button></form></div>`}
+  const mobile=window.innerWidth<900;
+  return `<div class="wrap msglayout">${mobile&&cur?"":list}${cur?chat:(mobile?"":`<div class="card empty"><p>Elige una conversación</p></div>`)}</div>`;
+}
+
+function vPerfil(){
+  const u=me();
+  if(!u)return `<div class="wrap section" style="max-width:480px">${loginHTML()}</div>`;
+  const myB=S.bookings.filter(b=>(b.ownerId===u.id&&b.reviews.renter)||(b.renterId===u.id&&b.reviews.owner));
+  return `<div class="wrap section" style="max-width:900px">
+    <div class="card pad row" style="gap:16px">${avatar(u)}<div style="flex:1;min-width:0"><h2>${esc(u.name)}</h2><div class="row" style="gap:6px">${isVerified(u)?'<span class="pill ok">Verificado</span>':'<span class="pill warn">Verificación incompleta</span>'}${premiumOwner(u.id)?'<span class="pill tag">Propietario destacado</span>':''}<span class="tiny">${trustLine(u.id)}</span></div></div><button class="btn sm" data-act="logout">Cerrar sesión</button></div>
+    <div class="grid" style="grid-template-columns:repeat(auto-fit,minmax(200px,1fr))">
+      <a class="card pad stack" href="#mis-anuncios" style="text-decoration:none;color:var(--ink);gap:4px"><b>Mis anuncios</b><span class="tiny">${S.items.filter(i=>i.ownerId===u.id).length} publicados</span></a>
+      <a class="card pad stack" href="#reservas" style="text-decoration:none;color:var(--ink);gap:4px"><b>Reservas</b><span class="tiny">${pendingOwner()} pendientes de responder</span></a>
+      <a class="card pad stack" href="#negocio" style="text-decoration:none;color:var(--ink);gap:4px"><b>Panel de negocio</b><span class="tiny">Ingresos de la plataforma</span></a>
+    </div>
+    <div class="card pad stack"><h3>Verificación de identidad</h3><p class="tiny">Obligatoria para alquilar y publicar. ${u.kyc?`Documento ${esc(u.kyc.dni)} verificado.`:"Tus datos no se muestran a otros usuarios."}</p>
+      ${[["email","Email","Confirmado al registrarte"],["phone","Teléfono","Código SMS de 6 dígitos"],["dni","DNI / NIE","Foto del documento y selfie"]].map(([k,l,h])=>`<div class="li"><span style="color:${u.verified[k]?"var(--ok)":"var(--ink-3)"}">${svg(u.verified[k]?"check":"shield")}</span><div class="grow"><b>${l}</b><div class="tiny">${h}</div></div>${u.verified[k]?'<span class="pill ok">Hecho</span>':`<button class="btn sm primary" data-act="verify" data-id="${k}">Verificar</button>`}</div>`).join("")}
+    </div>
+    ${myB.length?`<div class="card pad stack"><h3>Lo que dicen de ti</h3>${myB.map(b=>{const asOwner=b.ownerId===u.id;const r=asOwner?b.reviews.renter:b.reviews.owner;const by=user(asOwner?b.renterId:b.ownerId);return `<div class="stack" style="gap:2px"><div class="row" style="gap:6px"><span class="stars">${"★".repeat(r.stars)}</span><span class="pill grey">${asOwner?"Como propietario":"Como inquilino"}</span></div><p class="small muted">${esc(r.text)} — ${esc(by.name)}</p></div>`}).join("")}</div>`:""}
+    <div class="card pad stack"><h3>Probar como otro usuario</h3><p class="tiny">Cambia de cuenta para ver la app desde el lado del inquilino o de otro propietario.</p>
+      <div class="row">${S.users.map(x=>`<button class="chip ${x.id===S.me?"on":""}" data-act="switch" data-id="${x.id}">${esc(x.name)}</button>`).join("")}</div></div>
+  </div>`;
+}
+
+function vNegocio(){
+  const rev=S.purchases.reduce((a,p)=>a+p.amount,0);
+  const fees=S.bookings.filter(b=>["pagada","en_curso","finalizada"].includes(b.status)).reduce((a,b)=>a+b.fee,0);
+  const gmv=S.bookings.filter(b=>["pagada","en_curso","finalizada"].includes(b.status)).reduce((a,b)=>a+b.subtotal,0);
+  const byPack=PACKS.map(p=>({p,n:S.purchases.filter(x=>x.pack===p.id).length,s:S.purchases.filter(x=>x.pack===p.id).reduce((a,x)=>a+x.amount,0)}));
+  const maxS=Math.max(1,...byPack.map(x=>x.s));
+  return `<div class="wrap section" style="max-width:1000px">
+    <div class="sechead"><div><span class="label">Vista de administrador</span><h1 style="font-size:clamp(26px,4vw,36px)">Panel de negocio</h1></div></div>
+    <div class="kpis"><div class="card kpi"><span class="tiny">Ingresos por packs</span><b>${eur2(rev)}</b></div><div class="card kpi"><span class="tiny">Alquileres cerrados</span><b>${S.bookings.filter(b=>["pagada","en_curso","finalizada"].includes(b.status)).length}</b></div><div class="card kpi"><span class="tiny">Suscripciones Pro</span><b>${proCount()} · ${eur2(proCount()*PRO.price)}/mes</b></div><div class="card kpi"><span class="tiny">Anuncios / usuarios</span><b>${S.items.length} / ${S.users.length}</b></div></div>
+    <div class="card pad stack"><h3>Ventas por pack</h3>${byPack.map(x=>`<div class="stack" style="gap:4px"><div class="row"><b>${x.p.name}</b><span class="tiny">${eur2(x.p.price)}</span><span class="spacer"></span><span class="num">${x.n} venta${x.n===1?"":"s"} · <b>${eur2(x.s)}</b></span></div><div style="height:8px;background:var(--surface-2);border-radius:4px"><div style="height:100%;width:${x.s/maxS*100}%;background:var(--tag);border-radius:4px"></div></div></div>`).join("")}</div>
+    <div class="card pad stack"><h3>Páginas para Google</h3><p class="muted small">Se crea una página por categoría y ciudad (${CATS.length*Object.keys(CITIES).length} en total). ${CATS.flatMap(c=>Object.keys(CITIES).map(ci=>landingItems(c.id,ci).length)).filter(n=>n>0).length} ya tienen anuncios y se pueden indexar.</p><div class="row" style="gap:6px">${popularLinks(12)}</div></div>
+    <div class="card pad stack" id="packs"><h3>Packs de visibilidad</h3><p class="muted small">Así los ve el propietario cuando pulsa «Destacar anuncio».</p><div class="packs">${freeCard()}${PACKS.map(p=>packCard(p)).join("")}</div></div>
+    <div class="card pad"><h3>Últimas compras</h3><div class="list">${S.purchases.slice().sort((a,b)=>b.at-a.at).map(p=>{const it=item(p.itemId);return `<div class="li"><div class="grow"><div class="t">${esc(it?it.title:"Anuncio eliminado")}</div><div class="tiny">${esc(user(p.userId).name)} · ${ago(p.at)}</div></div><span class="pill tag">${PACKS.find(x=>x.id===p.pack).name}</span><b class="num">${eur2(p.amount)}</b></div>`}).join("")}</div></div>
+  </div>`;
+}
+function freeCard(){return `<div class="pack free"><b>Gratis</b><span class="pp num">0 €</span><ul><li>Anuncio publicado para siempre</li><li>Sale en búsquedas y en el mapa, detrás de los destacados</li><li>Fotos, calendario y chat incluidos</li></ul></div>`}
+function popularLinks(n){const out=[];CATS.forEach(c=>Object.keys(CITIES).forEach(ci=>{const k=landingItems(c.id,ci).length;if(k)out.push([k,c,ci])}));return out.sort((a,b)=>b[0]-a[0]).slice(0,n).map(([k,c,ci])=>`<a class="chip" href="${landingHref(c.id,ci)}">${esc(c.n)} en ${esc(ci)}</a>`).join("")}
+function vLanding(param){
+  const [catId,city]=param.split("|");const c=cat(catId);const L=CITIES[city];
+  const its=landingItems(catId,city).sort((a,b)=>boostRank(b)-boostRank(a)||km(L,a.loc)-km(L,b.loc));
+  const nm=c.n.toLowerCase();
+  const prices=its.map(i=>i.priceDay);const minP=prices.length?Math.min(...prices):0;const avg=prices.length?prices.reduce((a,b)=>a+b,0)/prices.length:0;
+  const title=`Alquiler de ${nm} en ${city} desde ${minP?eur(minP):"pocos euros"} al día | Alquilaap`;
+  const desc=`${its.length||"Nuevos"} anuncios de ${nm} para alquilar en ${city} entre particulares y tiendas. Sin comisiones: pagas directamente al propietario. Reserva por días o semanas.`;
+  const others=Object.keys(CITIES).filter(ci=>ci!==city&&landingItems(catId,ci).length).slice(0,6);
+  const otherCats=CATS.filter(x=>x.id!==catId&&landingItems(x.id,city).length);
+  return `<div class="wrap section">
+    <div class="tiny"><a href="#inicio">Inicio</a> › <a href="#buscar" data-act="gocat" data-id="${c.id}">${esc(c.n)}</a> › ${esc(city)}</div>
+    <h1 style="font-size:clamp(26px,4.5vw,40px)">Alquiler de ${esc(nm)} en ${esc(city)}</h1>
+    <p class="muted" style="max-width:65ch">${its.length?`Hay ${its.length} ${its.length===1?"anuncio":"anuncios"} de ${esc(nm)} en ${esc(city)} y alrededores, desde ${eur(minP)} al día (media ${eur(Math.round(avg))}).`:`Todavía no hay ${esc(nm)} en ${esc(city)}. Publica el tuyo gratis y sé el primero.`} Publicar es gratis y no cobramos comisión por alquilar.</p>
+    ${its.length?`<div class="grid g4">${its.map(card).join("")}</div>`:`<div><a class="btn primary" href="#publicar">Publicar gratis</a></div>`}
+    <div class="card pad stack"><span class="label">Así lo ve Google</span>
+      <div style="max-width:600px"><div class="tiny">alquilaap.com › alquilar › ${c.id} › ${citySlug(city)}</div><div style="color:var(--brand);font-size:18px;line-height:1.3">${esc(title)}</div><div class="small muted">${esc(desc)}</div></div>
+      <p class="tiny">En la versión real cada página se genera en el servidor con este título, descripción y datos estructurados (schema.org) para posicionar en Google.</p></div>
+    <div class="stack"><h2>Preguntas frecuentes</h2>
+      <div class="card pad stack" style="gap:4px"><b>¿Cuánto cuesta alquilar ${esc(nm)} en ${esc(city)}?</b><p class="small muted">${its.length?`Desde ${eur(minP)} al día; la media es ${eur(Math.round(avg))}. Muchos propietarios hacen precio semanal.`:"Depende del propietario; publica una alerta y te avisamos."}</p></div>
+      <div class="card pad stack" style="gap:4px"><b>¿Cómo se paga?</b><p class="small muted">Directamente al propietario al recoger: efectivo, Bizum o transferencia. Alquilaap no cobra comisión.</p></div>
+      <div class="card pad stack" style="gap:4px"><b>¿Hay fianza?</b><p class="small muted">Cada anuncio indica su fianza. Se entrega al recoger y se devuelve al terminar.</p></div>
+    </div>
+    ${others.length?`<div class="stack"><h3>${esc(c.n)} en otras ciudades</h3><div class="row" style="gap:6px">${others.map(ci=>`<a class="chip" href="${landingHref(catId,ci)}">${esc(ci)}</a>`).join("")}</div></div>`:""}
+    ${otherCats.length?`<div class="stack"><h3>Más para alquilar en ${esc(city)}</h3><div class="row" style="gap:6px">${otherCats.map(x=>`<a class="chip" href="${landingHref(x.id,city)}">${esc(x.n)}</a>`).join("")}</div></div>`:""}
+  </div>`;
+}
+function packCard(p,sel){return `<div class="pack ${sel?"sel":""}" ${sel!==undefined?`data-act="pickpack" data-id="${p.id}" role="button" tabindex="0"`:""}>${p.popular?'<span class="ribbon pill tag">Más elegido</span>':""}<b>${p.name}</b><span class="pp num">${eur2(p.price)}</span><ul>${p.perks.map(x=>`<li>${esc(x)}</li>`).join("")}</ul></div>`}
+
+function needLogin(what){return `<div class="wrap section" style="max-width:480px"><p class="muted">Inicia sesión para ${what}.</p>${loginHTML()}</div>`}
+function loginHTML(){return `<div class="card pad stack"><h2>Entra en Alquilaap</h2><p class="muted small">Una sola cuenta para alquilar y para publicar.</p>
+  <button class="btn block" data-act="login" data-id="u1">Continuar con Google</button><button class="btn block" data-act="login" data-id="u1">Continuar con Apple</button>
+  <div class="tiny" style="text-align:center">o con tu email</div>
+  <form class="stack" data-act="emaillogin"><input id="lmail" class="input" type="email" required placeholder="tu@email.com" aria-label="Email"><input id="lname" class="input" required placeholder="Tu nombre" aria-label="Nombre"><button class="btn primary block">Crear cuenta</button></form>
+  <p class="tiny">En esta demo, Google y Apple entran como el usuario de ejemplo.</p></div>`}
+
+/* ============ Modales ============ */
+function modalHTML(){
+  const m=UI.modal;
+  if(m.type==="boost"){const it=item(m.id);const p=PACKS.find(x=>x.id===m.pack);
+    return `<div class="scrim" data-act="closemodal"><div class="modal" role="dialog" aria-modal="true" aria-label="Destacar anuncio" data-stop>
+      ${m.step==="pay"?`<div class="stack"><div class="row"><button class="btn sm ghost" data-act="boostback">${svg("back")}</button><h2>Pago seguro</h2></div>
+        <div class="card pad row"><div style="flex:1"><b>${p.name}</b><div class="tiny">${esc(it.title)}</div></div><b class="num">${eur2(p.price)}</b></div>
+        <form class="stack" data-act="paypack"><label class="field"><span>Número de tarjeta</span><input id="cc" class="input num" value="4242 4242 4242 4242" inputmode="numeric"></label><div class="range2"><label class="field"><span>Caducidad</span><input id="ccx" class="input" value="12/29"></label><label class="field"><span>CVC</span><input id="ccc" class="input" value="123"></label></div>
+        <button class="btn primary block">Pagar ${eur2(p.price)}</button><p class="tiny">Modo prueba de Stripe: no se realiza ningún cargo. También se aceptan Bizum, Apple Pay y Google Pay en la versión final.</p></form></div>`:
+      `<div class="stack"><div class="row"><h2>Destaca «${esc(it.title)}»</h2><span class="spacer"></span><button class="btn sm ghost" data-act="closemodal" aria-label="Cerrar">✕</button></div>
+      <p class="muted small">Cualquiera puede destacar. Sin pack, tu anuncio sigue publicado gratis con visibilidad normal. Con un pack sale antes que los demás en ${esc(it.city)} y alrededores.</p>
+      <div class="packs">${freeCard()}${PACKS.map(x=>packCard(x,x.id===m.pack)).join("")}</div>
+      <button class="btn primary block" data-act="boostpay">Continuar con ${p.name} · ${eur2(p.price)}</button></div>`}
+    </div></div>`}
+  if(m.type==="pro"){return `<div class="scrim" data-act="closemodal"><div class="modal narrow" role="dialog" aria-modal="true" data-stop><form class="stack" data-act="paypro">
+    <div class="row"><h2>${PRO.name}</h2><span class="spacer"></span><button type="button" class="btn sm ghost" data-act="closemodal" aria-label="Cerrar">✕</button></div>
+    <div class="row" style="align-items:baseline"><span class="num" style="font-family:var(--f-display);font-weight:800;font-size:28px">${eur2(PRO.price)}</span><span class="muted">al mes · cancela cuando quieras</span></div>
+    <ul class="small" style="margin:0;padding-left:18px;display:flex;flex-direction:column;gap:4px">${PRO.perks.map(x=>`<li>${esc(x)}</li>`).join("")}</ul>
+    <label class="field"><span>Número de tarjeta</span><input id="pcc" class="input num" value="4242 4242 4242 4242" inputmode="numeric"></label>
+    <button class="btn primary block">Suscribirme por ${eur2(PRO.price)}/mes</button><p class="tiny">Modo prueba de Stripe Billing: no se realiza ningún cargo.</p></form></div></div>`}
+  if(m.type==="kyc"){const u=me();return `<div class="scrim" data-act="closemodal"><div class="modal narrow" role="dialog" aria-modal="true" data-stop><form class="stack" data-act="dokyc">
+    <div class="row"><h2>Verifica tu identidad</h2><span class="spacer"></span><button type="button" class="btn sm ghost" data-act="closemodal" aria-label="Cerrar">✕</button></div>
+    <p class="small muted">Para evitar robos, todos los usuarios dan sus datos reales antes de ${m.why==="reservar"?"alquilar":"publicar o alquilar"}. Los demás usuarios solo ven tu nombre y el sello «Verificado». Tus datos solo se usan si hay una denuncia.</p>
+    <label class="field"><span>Nombre y apellidos (como en el DNI)</span><input id="k_name" class="input" required value="${esc(u.legalName||u.name)}"></label>
+    <div class="range2"><label class="field"><span>DNI / NIE</span><input id="k_dni" class="input" required placeholder="12345678Z" pattern="[0-9XYZxyz][0-9]{7}[A-Za-z]"></label><label class="field"><span>Fecha de nacimiento</span><input id="k_birth" class="input" type="date" required></label></div>
+    <label class="field"><span>Teléfono móvil</span><input id="k_phone" class="input" required inputmode="tel" placeholder="+34 600 000 000"></label>
+    <label class="field"><span>Dirección</span><input id="k_addr" class="input" required placeholder="Calle, número, código postal, ciudad"></label>
+    <div class="range2"><label class="field"><span>Foto del DNI (delante)</span><input id="k_doc" class="input" type="file" accept="image/*"></label><label class="field"><span>Selfie</span><input id="k_selfie" class="input" type="file" accept="image/*"></label></div>
+    <button class="btn primary block">Enviar y verificar</button><p class="tiny">En la versión real, un proveedor de verificación (Stripe Identity o Veriff) comprueba que el DNI es auténtico y que la selfie coincide, y el teléfono se confirma con un código SMS. En esta demo se aprueba al momento.</p></form></div></div>`}
+  if(m.type==="issue"){return `<div class="scrim" data-act="closemodal"><div class="modal narrow" role="dialog" aria-modal="true" data-stop><form class="stack" data-act="doissue"><h2>¿Qué ha pasado?</h2>
+    <p class="small muted">Se avisa a la otra persona y al equipo de Alquilaap. Añade fotos en el chat si las tienes.</p>
+    <select id="iss_type" class="input"><option>El producto tiene daños</option><option>El producto no se ha devuelto</option><option>Falta una pieza o accesorio</option><option>La fianza no se ha devuelto</option><option>Otro problema</option></select>
+    <textarea id="iss_txt" class="input" placeholder="Cuéntalo en pocas palabras" required></textarea>
+    <button class="btn primary block">Abrir incidencia</button></form></div></div>`}
+  if(m.type==="review"){const b=S.bookings.find(x=>x.id===m.id);const other=user(UI.resTab==="inquilino"?b.ownerId:b.renterId);
+    return `<div class="scrim" data-act="closemodal"><div class="modal narrow" role="dialog" aria-modal="true" data-stop><form class="stack" data-act="savereview"><h2>Valora a ${esc(other.name)}</h2>
+      <div class="starpick">${[1,2,3,4,5].map(n=>`<button type="button" class="${n<=(m.stars||0)?"on":""}" data-act="star" data-id="${n}" aria-label="${n} estrellas">★</button>`).join("")}</div>
+      <textarea id="revtxt" class="input" placeholder="¿Qué tal fue el alquiler?" required></textarea><button class="btn primary block" ${m.stars?"":"disabled"}>Publicar valoración</button></form></div></div>`}
+  if(m.type==="verify"){return `<div class="scrim" data-act="closemodal"><div class="modal narrow" role="dialog" aria-modal="true" data-stop><form class="stack" data-act="doverify"><h2>${m.id==="phone"?"Verifica tu teléfono":m.id==="dni"?"Verifica tu DNI o NIE":"Verifica tu email"}</h2>
+    ${m.id==="phone"?`<label class="field"><span>Teléfono</span><input id="vph" class="input" value="+34 600 000 000"></label><label class="field"><span>Código recibido por SMS</span><input id="vcode" class="input num" value="482913" inputmode="numeric"></label>`:m.id==="dni"?`<label class="field"><span>Foto del documento (delante)</span><input id="vdni" class="input" type="file" accept="image/*"></label><label class="field"><span>Selfie</span><input id="vself" class="input" type="file" accept="image/*"></label><p class="tiny">En producción lo valida un proveedor KYC (por ejemplo Stripe Identity o Veriff).</p>`:""}
+    <button class="btn primary block">Verificar</button></form></div></div>`}
+  if(m.type==="confirm"){return `<div class="scrim" data-act="closemodal"><div class="modal narrow" role="dialog" aria-modal="true" data-stop><div class="stack"><h2>${esc(m.title)}</h2><p class="muted">${esc(m.text)}</p><div class="row"><button class="btn primary" data-act="confirmok">${esc(m.ok)}</button><button class="btn" data-act="closemodal">Cancelar</button></div></div></div></div>`}
+  return "";
+}
+
+/* ============ Router ============ */
+function route(){
+  const h=(location.hash||"#inicio").slice(1);
+  let v=h,p=null;
+  const m=h.match(/^(anuncio|editar)-(.+)$/);if(m){v=m[1];p=m[2]}
+  if(h==="negocio-packs"){v="negocio";p="packs"}
+  const lm=h.match(/^alquilar-([a-z]+)-(.+)$/);if(lm&&CATS.some(c=>c.id===lm[1])&&cityFromSlug(lm[2])){v="landing";p=lm[1]+"|"+cityFromSlug(lm[2])}
+  if(!["inicio","buscar","anuncio","editar","publicar","mis-anuncios","reservas","mensajes","perfil","negocio","landing"].includes(v))v="inicio";
+  if(v!==UI.view||p!==UI.param){
+    if(v==="anuncio"&&p!==UI.param){UI.selS="";UI.selE="";UI.photoIx=0;UI.calM=0;const it=item(p);if(it&&it.ownerId!==S.me){it.views++;save()}}
+    if(v==="publicar"&&UI.view!=="publicar"){UI.draft=null;UI.aiMsg=""}
+    UI.view=v;UI.param=p;window.scrollTo(0,0);
+  }
+  render();
+  if(p==="packs"){const el=document.getElementById("packs");if(el)el.scrollIntoView()}
+}
+function render(){
+  const views={landing:()=>vLanding(UI.param),inicio:vInicio,buscar:vBuscar,anuncio:()=>vAnuncio(UI.param),editar:()=>vPublicar(UI.param),publicar:()=>vPublicar(null),"mis-anuncios":vMisAnuncios,reservas:vReservas,mensajes:vMensajes,perfil:vPerfil,negocio:vNegocio};
+  const active=document.activeElement&&document.activeElement.id, selStart=active&&document.activeElement.selectionStart;
+  $("#app").innerHTML=shell((views[UI.view]||vInicio)());
+  if(active){const el=document.getElementById(active);if(el&&el.tagName!=="BUTTON"){el.focus();try{if(selStart!=null)el.setSelectionRange(selStart,selStart)}catch(e){}}}
+  const log=$("#log");if(log)log.scrollTop=log.scrollHeight;
+  const pi=$("#photoin");if(pi)pi.addEventListener("change",onPhotos);
+  const mb=document.querySelector(".msgback");if(mb&&window.innerWidth>=900)mb.hidden=true;
+}
+let tt;function toast(t){let el=$(".toast");if(!el){el=document.createElement("div");el.className="toast";el.setAttribute("role","status");document.body.appendChild(el)}el.textContent=t;el.hidden=false;clearTimeout(tt);tt=setTimeout(()=>el.hidden=true,2800)}
+const go=h=>{if(location.hash==="#"+h)route();else location.hash=h};
+function sysMsg(b,text){S.messages.push({id:uid("m"),thread:threadKey(b.itemId,b.renterId),from:"sys",text,at:Date.now()})}
+
+/* ============ Fotos ============ */
+function onPhotos(e){
+  const files=[...e.target.files].slice(0,6-UI.draft.photos.length);let left=files.length;
+  files.forEach(f=>{const r=new FileReader();r.onload=()=>{const img=new Image();img.onload=()=>{const max=900,s=Math.min(1,max/Math.max(img.width,img.height));const c=document.createElement("canvas");c.width=Math.round(img.width*s);c.height=Math.round(img.height*s);c.getContext("2d").drawImage(img,0,0,c.width,c.height);UI.draft.photos.push(c.toDataURL("image/jpeg",.72));if(--left===0)render()};img.onerror=()=>{if(--left===0)render()};img.src=r.result};r.readAsDataURL(f)});
+}
+
+/* ============ IA: rellenar anuncio desde la foto ============ */
+function dataUrlToBlob(u){const [h,b]=u.split(",");const mime=(h.match(/:(.*?);/)||[,"image/jpeg"])[1];const bin=atob(b);const arr=new Uint8Array(bin.length);for(let i=0;i<bin.length;i++)arr[i]=bin.charCodeAt(i);return new Blob([arr],{type:mime})}
+async function aiFill(){
+  const d=UI.draft;if(!SAMPLE||!d||!d.photos.length)return;
+  UI.aiBusy=true;UI.aiMsg="Analizando la foto…";render();
+  const prompt=`Eres el asistente de publicación de Alquilaap, un marketplace español de alquiler de objetos entre particulares.
+Mira la foto y prepara el anuncio de alquiler del objeto principal. Responde SOLO con un objeto JSON con estas claves:
+"title": título en español, máximo 60 caracteres, con marca y modelo si se ven;
+"cat": exactamente uno de ${CATS.map(c=>'"'+c.id+'"').join(", ")};
+"desc": descripción en español de 2 o 3 frases: qué es, estado aparente, para qué sirve y qué conviene incluir;
+"priceDay": precio razonable por día en euros (número) para alquiler entre particulares en ${d.city||"España"};
+"priceWeek": precio por semana en euros (número, menor que 7 veces el diario);
+"deposit": fianza razonable en euros (número, múltiplo de 10).`;
+  try{
+    const r=await SAMPLE.json(prompt,{images:[dataUrlToBlob(d.photos[0])],modelTier:"default"});
+    if(r&&typeof r==="object"){
+      if(r.title)d.title=String(r.title).slice(0,70);
+      if(CATS.some(c=>c.id===r.cat))d.cat=r.cat;
+      if(r.desc)d.desc=String(r.desc);
+      if(+r.priceDay>0)d.priceDay=Math.round(+r.priceDay*2)/2;
+      if(+r.priceWeek>0)d.priceWeek=Math.round(+r.priceWeek);
+      if(+r.deposit>=0)d.deposit=Math.round(+r.deposit);
+      UI.aiMsg="Listo. Revisa los datos y cambia lo que quieras antes de publicar.";
+    }else UI.aiMsg="No he podido leer la respuesta. Prueba otra vez o rellénalo a mano.";
+  }catch(e){
+    if(e&&e.code==="not_granted"){SAMPLE=null;UI.aiMsg=""}
+    else if(e&&e.code==="rate_limited")UI.aiMsg="Demasiadas peticiones seguidas. Espera un momento y vuelve a probar.";
+    else UI.aiMsg="La IA no ha podido analizar la foto. Rellénalo a mano o prueba con otra foto.";
+  }
+  UI.aiBusy=false;render();
+}
+(async()=>{try{if(window.claude&&typeof window.claude.use==="function"){const s=await window.claude.use("sample");if(s){SAMPLE=s;if(UI.view==="publicar"||UI.view==="editar")render()}}}catch(e){}})();
+
+/* ============ Eventos ============ */
+document.addEventListener("click",e=>{
+  const t=e.target.closest("[data-act]");if(!t)return;
+  const a=t.dataset.act,id=t.dataset.id;
+  if(a==="closemodal"){if(e.target.closest("[data-stop]")&&t.classList.contains("scrim"))return;UI.modal=null;render();return}
+  if(t.tagName==="FORM"||t.tagName==="INPUT"&&t.type!=="button")return;
+  switch(a){
+    case "gocat":UI.fcat=id;UI.q="";go("buscar");break;
+    case "setcat":UI.fcat=id;render();break;
+    case "mode":UI.fmode=id;render();break;
+    case "clearf":Object.assign(UI,{q:"",fcat:"",fmin:"",fmax:"",fradius:"50",fstart:"",fend:"",fsort:"relevancia"});render();break;
+    case "open":go("anuncio-"+id);break;
+    case "thumb":UI.photoIx=+id;render();break;
+    case "calprev":UI.calM=Math.max(0,UI.calM-1);render();break;
+    case "calnext":UI.calM=Math.min(11,UI.calM+1);render();break;
+    case "pickday":{if(t.classList.contains("past")||t.classList.contains("blk")||t.classList.contains("bkd"))return;
+      if(!UI.selS||UI.selE||id<UI.selS){UI.selS=id;UI.selE=""}else UI.selE=id;render();break}
+    case "toggleblk":{if(t.classList.contains("past"))return;const b=UI.draft.blocked;const i=b.indexOf(id);if(i>=0)b.splice(i,1);else b.push(id);render();break}
+    case "request":{if(!me()){go("perfil");toast("Entra para reservar");return}if(!isVerified(me())){UI.modal={type:"kyc",why:"reservar"};render();return}const it=item(id);if(!UI.selS||!UI.selE)return;if(!rangeFree(it,UI.selS,UI.selE)){toast("Esas fechas no están disponibles");return}
+      const inst=isPro(it.ownerId);const b=Object.assign({id:uid("b"),itemId:it.id,renterId:S.me,ownerId:it.ownerId,start:UI.selS,end:UI.selE,status:inst?"aceptada":"solicitada",created:Date.now(),reviews:{},pickup:{},ret:{}},quote(it,UI.selS,UI.selE,UI.ins));S.bookings.push(b);sysMsg(b,inst?`Reserva inmediata confirmada: ${fmtD(b.start)} → ${fmtD(b.end)} (${b.days} días)`:`Solicitud de reserva: ${fmtD(b.start)} → ${fmtD(b.end)} (${b.days} días)`);save();UI.resTab="inquilino";toast(inst?"Reserva confirmada al momento":"Solicitud enviada. Te avisaremos cuando responda.");go("reservas");break}
+    case "contact":{if(!me()){go("perfil");return}UI.thread=threadKey(id,S.me);go("mensajes");break}
+    case "openthread":{e.preventDefault();UI.thread=id;if(UI.view!=="mensajes")go("mensajes");else render();break}
+    case "closethread":UI.thread=null;render();break;
+    case "boost":UI.modal={type:"boost",id,pack:"pro",step:"pick"};render();break;
+    case "pickpack":UI.modal.pack=id;render();break;
+    case "boostpay":UI.modal.step="pay";render();break;
+    case "boostback":UI.modal.step="pick";render();break;
+    case "restab":UI.resTab=id;render();break;
+    case "bk":{const b=S.bookings.find(x=>x.id===id);const op=t.dataset.op;
+      if(op==="aceptar"){if(!rangeFree(item(b.itemId),b.start,b.end)){toast("Ya hay otra reserva en esas fechas");return}b.status="aceptada";sysMsg(b,"El propietario ha aceptado la reserva. Acordad aquí la hora de recogida.");toast("Reserva aceptada")}
+      const who=S.me===b.ownerId?"owner":"renter";
+      if(op==="alquilado"){b.pickup=b.pickup||{};b.pickup[who]=true;sysMsg(b,`${me().name} ha marcado el producto como alquilado.`);if(bothDone(b.pickup)){b.status="en_curso";sysMsg(b,"Los dos habéis marcado «alquilado». El alquiler está en curso.");toast("Alquiler en curso")}else toast("Marcado. Falta la confirmación de la otra persona.")}
+      if(op==="finalizado"){UI.modal={type:"confirm",title:"Marcar como finalizado",text:`Al marcarlo certificas que ${who==="owner"?"has recibido el producto en perfectas condiciones y has devuelto la fianza":"has devuelto el producto en perfectas condiciones y has recibido la fianza"}.`,ok:"Sí, todo correcto",run:()=>{b.ret=b.ret||{};b.ret[who]=true;sysMsg(b,`${me().name} ha marcado el alquiler como finalizado.`);if(bothDone(b.ret)){b.status="finalizada";sysMsg(b,"Los dos habéis certificado que el producto se devolvió en perfectas condiciones. Ya podéis valoraros.");toast("Alquiler finalizado por ambos")}else toast("Marcado. Falta la confirmación de la otra persona.");save()}};render();return}
+      if(op==="problema"){UI.modal={type:"issue",id:b.id};render();return}
+      if(op==="rechazar"){b.status="rechazada";sysMsg(b,"El propietario ha rechazado la solicitud.");toast("Solicitud rechazada")}
+      if(op==="cancelar"){b.status="cancelada";sysMsg(b,"El inquilino ha cancelado la solicitud.");toast("Reserva cancelada")}
+      save();render();break}
+    case "pay":{const b=S.bookings.find(x=>x.id===id);UI.modal={type:"confirm",title:`Pagar ${eur2(b.total)}`,text:`Se cargarán ${eur2(b.total)} en tu tarjeta (modo prueba). ${eur2(b.deposit)} son la fianza y se devuelven al terminar.`,ok:"Pagar ahora",run:()=>{b.status="pagada";sysMsg(b,"Pago completado. El importe queda retenido hasta la recogida.");save();toast("Pago completado")}};render();break}
+    case "confirmok":{const r=UI.modal.run;UI.modal=null;r&&r();render();break}
+    case "review":UI.modal={type:"review",id,stars:5};render();break;
+    case "star":UI.modal.stars=+id;render();break;
+    case "verify":UI.modal={type:"kyc",why:"perfil"};render();break;
+    case "kyc":UI.modal={type:"kyc",why:"publicar"};render();break;
+    case "switch":S.me=id;S.myCity=user(id).city in CITIES?user(id).city:S.myCity;UI.thread=null;save();toast("Ahora eres "+user(id).name);render();break;
+    case "login":S.me=id;save();toast("Sesión iniciada");route();break;
+    case "logout":S.me=null;save();go("inicio");break;
+    case "rmphoto":UI.draft.photos.splice(+id,1);render();break;
+    case "pause":{const it=item(id);it.active=!it.active;save();toast(it.active?"Anuncio reactivado":"Anuncio pausado");UI.draft=null;go("mis-anuncios");break}
+    case "gopro":UI.modal={type:"pro"};render();break;
+    case "aifill":aiFill();break;
+    case "reset":UI.modal={type:"confirm",title:"Restablecer la demo",text:"Se borran tus cambios y vuelven los datos de ejemplo.",ok:"Restablecer",run:()=>{S=seed();save();UI.draft=null;go("inicio")}};render();break;
+  }
+});
+document.addEventListener("keydown",e=>{if((e.key==="Enter"||e.key===" ")&&e.target.matches('[role="button"][data-act]')){e.preventDefault();e.target.click()}if(e.key==="Escape"&&UI.modal){UI.modal=null;render()}});
+document.addEventListener("submit",e=>{
+  const f=e.target.closest("[data-act]");if(!f)return;e.preventDefault();const a=f.dataset.act;
+  if(a==="topsearch"){UI.q=$("#topq").value;go("buscar")}
+  if(a==="herosearch"){UI.q=$("#heroq").value;S.myCity=$("#herocity").value;save();go("buscar")}
+  if(a==="send"){const v=$("#msgin").value.trim();if(!v)return;S.messages.push({id:uid("m"),thread:UI.thread,from:S.me,text:v,at:Date.now()});save();render();const i=$("#msgin");if(i)i.focus()}
+  if(a==="saveitem"){const d=UI.draft;if(!d.title||!d.desc||!d.priceDay){toast("Completa título, descripción y precio");return}
+    const loc=CITIES[d.city]||CITIES.Barcelona;const data={title:d.title.trim(),desc:d.desc.trim(),cat:d.cat,priceDay:+d.priceDay,priceWeek:d.priceWeek?+d.priceWeek:0,deposit:+d.deposit||0,city:d.city,cp:d.cp,photos:d.photos,blocked:d.blocked};
+    if(d._for==="new"){const it=Object.assign({id:uid("i"),ownerId:S.me,loc:[loc[0]+(Math.random()-.5)*.03,loc[1]+(Math.random()-.5)*.04],created:Date.now(),views:0,boost:null,active:true,rating:5,reviews:0},data);S.items.unshift(it);if(save()){UI.draft=null;toast("¡Publicado! Tu anuncio ya está visible.");UI.modal={type:"boost",id:it.id,pack:"basico",step:"pick"};go("anuncio-"+it.id)}else S.items.shift()}
+    else{const it=item(d._for);if(it.city!==d.city)it.loc=[loc[0]+(Math.random()-.5)*.03,loc[1]+(Math.random()-.5)*.04];Object.assign(it,data);save();UI.draft=null;toast("Cambios guardados");go("anuncio-"+it.id)}}
+  if(a==="paypro"){const u=me();u.pro=Math.max(Date.now(),u.pro||0)+30*24*36e5;S.subs.push({id:uid("s"),userId:u.id,amount:PRO.price,at:Date.now()});save();UI.modal=null;toast("¡Ya eres Pro! Tus anuncios salen por delante.");render()}
+  if(a==="paypack"){const m=UI.modal,p=PACKS.find(x=>x.id===m.pack),it=item(m.id);const base=boostActive(it)&&it.boost.pack===p.id?it.boost.until:Date.now();it.boost={pack:p.id,until:base+p.hours*36e5};S.purchases.push({id:uid("p"),itemId:it.id,userId:S.me,pack:p.id,amount:p.price,at:Date.now()});save();UI.modal=null;toast(`${p.name} activado. ¡Tu anuncio ya sale primero!`);render()}
+  if(a==="savereview"){const m=UI.modal,b=S.bookings.find(x=>x.id===m.id);const role=UI.resTab==="inquilino"?"renter":"owner";b.reviews[role]={stars:m.stars,text:$("#revtxt").value.trim(),at:Date.now()};if(role==="renter"){const it=item(b.itemId);it.reviews++;it.rating=Math.round(((it.rating*(it.reviews-1))+m.stars)/it.reviews*10)/10}save();UI.modal=null;toast("Gracias por tu valoración");render()}
+  if(a==="dokyc"){const u=me();const dni=$("#k_dni").value.trim().toUpperCase();u.legalName=$("#k_name").value.trim();u.kyc={dni:dni.slice(0,1)+"•••••"+dni.slice(-3),at:Date.now()};u.verified.phone=true;u.verified.dni=true;save();UI.modal=null;toast("Identidad verificada. Ya puedes alquilar y publicar.");render()}
+  if(a==="doissue"){const b=S.bookings.find(x=>x.id===UI.modal.id);b.status="incidencia";b.issue=$("#iss_type").value+": "+$("#iss_txt").value.trim();sysMsg(b,`Incidencia abierta por ${me().name}: ${b.issue}`);if(b.insurance)sysMsg(b,"Este alquiler tiene seguro: el parte se ha enviado a la aseguradora.");save();UI.modal=null;toast("Incidencia abierta");render()}
+  if(a==="doverify"){me().verified[UI.modal.id]=true;save();UI.modal=null;toast("Verificación completada");render()}
+  if(a==="emaillogin"){const name=$("#lname").value.trim()||"Nuevo usuario";const u={id:uid("u"),name,city:S.myCity,color:"#"+["0f6b5c","2f6fb0","b2582b","7a4bb0","b23a6a"][Math.floor(Math.random()*5)],joined:String(new Date().getFullYear()),verified:{email:true,phone:false,dni:false},bio:""};S.users.push(u);S.me=u.id;save();toast("Cuenta creada. ¡Bienvenido, "+name+"!");route()}
+});
+document.addEventListener("input",e=>{
+  const t=e.target;
+  if(t.dataset.f){const k=t.dataset.f;if(k==="city"){S.myCity=t.value;save()}else UI[k]=t.value;
+    clearTimeout(window.__ft);window.__ft=setTimeout(render,t.type==="text"||t.type==="search"||!t.type||t.type==="number"?250:0);}
+  if(t.dataset.d){UI.draft[t.dataset.d]=t.value}
+  if(t.dataset.act==="seldate"){UI.selS=$("#selS").value;UI.selE=$("#selE").value;if(UI.selE&&UI.selE<UI.selS)UI.selE="";render()}
+});
+document.addEventListener("change",e=>{const t=e.target;if(t.dataset.act==="ins"){UI.ins=t.checked;render();return}if(t.dataset.f&&t.tagName==="SELECT")render()});
+window.addEventListener("hashchange",route);
+let lastW=window.innerWidth;window.addEventListener("resize",()=>{if((lastW<900)!==(window.innerWidth<900)){lastW=window.innerWidth;render()}});
+route();
+})();
+</script>
+
+</html>
