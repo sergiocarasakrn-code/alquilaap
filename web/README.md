@@ -37,12 +37,14 @@ TEST_DATABASE_URL=postgresql://... npm run test:db   # también contra PostgreSQ
 
 ## Publicar en Railway
 
-`railway.json` ya trae la configuración: al arrancar aplica las migraciones (`npm run start:prod`) y Railway comprueba `/api/v1/health` antes de pasar el tráfico a la versión nueva (sin cortes).
+Railway construye la app con el `Dockerfile` de la raíz del repositorio (lo indica el `railway.json` de la raíz): no hace falta configurar «Root Directory». Al arrancar aplica las migraciones (`npm run start:prod`) y Railway comprueba `/api/v1/health` antes de pasar el tráfico a la versión nueva (sin cortes). Si alguien pone «Root Directory = web», también funciona: entonces se usa `web/railway.json` con el constructor estándar de Railway.
 
-1. En Railway: New Project → Deploy from GitHub repo → `alquilaap`. En Settings del servicio, Root Directory = `web`.
+1. En Railway: New Project → Deploy from GitHub repo → `alquilaap`. Deja «Root Directory» vacío.
 2. Añade una base de datos PostgreSQL al proyecto y, en Variables del servicio, `DATABASE_URL = ${{Postgres.DATABASE_URL}}`.
 3. Resto de variables: `ID_HASH_SECRET` (texto largo aleatorio), `APP_URL` (la URL pública), `ADMIN_EMAILS`, `S3_*` (Cloudflare R2), `STRIPE_SECRET_KEY` y `STRIPE_WEBHOOK_SECRET`.
 4. En Stripe, webhook a `<APP_URL>/api/v1/stripe/webhook` con los eventos `checkout.session.completed`, `customer.subscription.updated` y `customer.subscription.deleted`.
+
+Las fuentes (Inter y Bricolage Grotesque) van dentro de la app (`@fontsource`), así que construir no depende de descargar nada de Google.
 
 ## Administración
 

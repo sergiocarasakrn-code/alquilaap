@@ -1,0 +1,9 @@
+.git
+**/node_modules
+**/.next
+web/.env
+web/storage-data
+web/public/uploads
+web/private-uploads
+prototype
+docs
