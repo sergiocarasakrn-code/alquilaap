@@ -1,13 +1,15 @@
 import type { Metadata, Viewport } from "next";
 import Link from "next/link";
-import { Bricolage_Grotesque, Inter } from "next/font/google";
 import { currentUser, isProUser } from "@/lib/auth";
 import { isAdmin } from "@/lib/admin";
 import { logout } from "./actions/auth";
+// Fuentes incluidas en la app (sin descargarlas de Google al construir: así el despliegue no depende de ello).
+import "@fontsource-variable/inter/index.css";
+import "@fontsource/bricolage-grotesque/latin-600.css";
+import "@fontsource/bricolage-grotesque/latin-700.css";
+import "@fontsource/bricolage-grotesque/latin-800.css";
 import "./globals.css";
 
-const display = Bricolage_Grotesque({ subsets: ["latin"], weight: ["600", "800"], variable: "--font-bricolage" });
-const body = Inter({ subsets: ["latin"], variable: "--font-inter" });
 
 export const metadata: Metadata = {
   metadataBase: new URL(process.env.APP_URL ?? "http://localhost:3000"),
@@ -19,7 +21,7 @@ export const viewport: Viewport = { themeColor: "#0f6b5c", width: "device-width"
 export default async function RootLayout({ children }: { children: React.ReactNode }) {
   const user = await currentUser();
   return (
-    <html lang="es" className={`${display.variable} ${body.variable}`}>
+    <html lang="es">
       <body className="min-h-dvh font-sans antialiased">
         <header className="sticky top-0 z-20 border-b border-line bg-surface/90 backdrop-blur">
           <div className="mx-auto flex max-w-6xl items-center gap-3 px-4 py-3">
