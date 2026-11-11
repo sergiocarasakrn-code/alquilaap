@@ -1,6 +1,7 @@
 import Link from "next/link";
 import type { ListingCard as Card } from "@/lib/listings";
-import { categoryName, CATEGORIES } from "@/lib/config";
+import { categoryName, CATEGORIES, subcategoriesOf } from "@/lib/config";
+import { CategoryIcon } from "./CategoryIcon";
 import { money } from "@/lib/format";
 import { STATUS_LABEL, type Status } from "@/lib/booking-rules";
 
@@ -34,6 +35,7 @@ export function ListingCard({ l }: { l: Card }) {
         <p className="line-clamp-1 font-semibold">{l.title}</p>
         <p className="mt-0.5 text-sm text-ink-3">
           {categoryName(l.category)} · {l.city}
+          {l.distanceKm !== undefined && ` · ${l.distanceKm < 1 ? "<1" : Math.round(l.distanceKm)} km`}
         </p>
         <p className="mt-1.5">
           <span className="font-display text-lg font-extrabold">{money(l.pricePerDayCents)}</span>
@@ -55,28 +57,44 @@ export function ListingGrid({ items, empty }: { items: Card[]; empty?: React.Rea
   );
 }
 
-export function CategoryChips({ active, city }: { active?: string; city?: string }) {
-  const href = (slug?: string) => {
+export function CategoryChips({ active, activeSub, zone }: { active?: string; activeSub?: string; zone?: Record<string, string> }) {
+  const href = (slug?: string, sub?: string) => {
     const p = new URLSearchParams();
     if (slug) p.set("cat", slug);
-    if (city) p.set("ciudad", city);
+    if (sub) p.set("sub", sub);
+    for (const [k, v] of Object.entries(zone ?? {})) p.set(k, v);
     const s = p.toString();
     return `/buscar${s ? "?" + s : ""}`;
   };
+  const chip = (on: boolean) => `pill shrink-0 border px-3 py-1.5 text-sm ${on ? "border-brand bg-brand text-brand-ink" : "border-line bg-surface"}`;
+  const subs = active ? subcategoriesOf(active) : [];
   return (
-    <div className="-mx-4 flex gap-2 overflow-x-auto px-4 pb-1 [scrollbar-width:none]">
-      <Link href={href()} className={`pill shrink-0 border px-3 py-1.5 text-sm ${!active ? "border-brand bg-brand text-brand-ink" : "border-line bg-surface"}`}>
-        Todo
-      </Link>
-      {CATEGORIES.map((c) => (
-        <Link
-          key={c.slug}
-          href={href(c.slug)}
-          className={`pill shrink-0 border px-3 py-1.5 text-sm ${active === c.slug ? "border-brand bg-brand text-brand-ink" : "border-line bg-surface"}`}
-        >
-          {c.name}
+    <div className="space-y-2">
+      <div className="-mx-4 flex gap-2 overflow-x-auto px-4 pb-1 [scrollbar-width:none]">
+        <Link href="/categorias" className={chip(false)}>
+          <CategoryIcon slug="todas" className="h-4 w-4" /> Categorías
         </Link>
-      ))}
+        <Link href={href()} className={chip(!active)}>
+          Todo
+        </Link>
+        {CATEGORIES.map((c) => (
+          <Link key={c.slug} href={href(c.slug)} className={chip(active === c.slug)}>
+            <CategoryIcon slug={c.slug} className="h-4 w-4" /> {c.name}
+          </Link>
+        ))}
+      </div>
+      {subs.length > 0 && (
+        <div className="-mx-4 flex gap-2 overflow-x-auto px-4 pb-1 [scrollbar-width:none]">
+          <Link href={href(active)} className={chip(!activeSub)}>
+            Todo en {categoryName(active!)}
+          </Link>
+          {subs.map((s) => (
+            <Link key={s.slug} href={href(active, s.slug)} className={chip(activeSub === s.slug)}>
+              {s.name}
+            </Link>
+          ))}
+        </div>
+      )}
     </div>
   );
 }

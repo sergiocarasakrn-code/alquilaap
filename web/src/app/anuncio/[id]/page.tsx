@@ -3,7 +3,7 @@ import { notFound } from "next/navigation";
 import type { Metadata } from "next";
 import { db } from "@/lib/db";
 import { currentUser, isProUser } from "@/lib/auth";
-import { categoryName } from "@/lib/config";
+import { categoryName, subcategoryName } from "@/lib/config";
 import { dayKey, money, shortDate, todayUTC } from "@/lib/format";
 import { userStats } from "@/lib/listings";
 import { requestBooking } from "@/app/actions/bookings";
@@ -65,7 +65,14 @@ export default async function Anuncio({ params, searchParams }: { params: P; sea
         </div>
         <div>
           <p className="text-sm text-ink-3">
-            <Link href={`/buscar?cat=${l.category}`}>{categoryName(l.category)}</Link> · <Link href={`/buscar?ciudad=${l.citySlug}`}>{l.city}</Link>
+            <Link href={`/buscar?cat=${l.category}`}>{categoryName(l.category)}</Link>
+            {subcategoryName(l.category, l.subcategory) && (
+              <>
+                {" › "}
+                <Link href={`/buscar?cat=${l.category}&sub=${l.subcategory}`}>{subcategoryName(l.category, l.subcategory)}</Link>
+              </>
+            )}{" "}
+            · <Link href={`/buscar?ciudad=${l.citySlug}`}>{l.city}</Link>
           </p>
           <h1 className="h1 mt-1">{l.title}</h1>
         </div>

@@ -87,4 +87,20 @@ describe.skipIf(!enabled)("reservas en base de datos", () => {
     expect(await handleStripeEvent(ev)).toBe("duplicate");
     expect((await db.packPurchase.findUniqueOrThrow({ where: { id: p.id } })).status).toBe("paid");
   });
+
+  it("filtra por provincia y por distancia", async () => {
+    const l = await db.listing.create({
+      data: { ownerId: owner.id, title: `Kayak ${tag}`, description: "Kayak doble para pruebas", category: "deportes", subcategory: "kayak-y-paddle-surf", city: "Castelldefels", citySlug: "castelldefels", lat: 41.28, lng: 1.98, pricePerDayCents: 2000 },
+    });
+    const bcn = { lat: 41.3874, lng: 2.1686 };
+    const ids = async (p: Parameters<typeof searchListings>[0]) => (await searchListings(p)).items.map((i) => i.id);
+    expect(await ids({ q: tag, center: bcn, km: 10 })).not.toContain(l.id);
+    const near = await searchListings({ q: tag, center: bcn, km: 25 });
+    expect(near.items.map((i) => i.id)).toContain(l.id);
+    expect(Math.round(near.items.find((i) => i.id === l.id)!.distanceKm!)).toBeGreaterThan(15);
+    expect(await ids({ q: tag, placeSlugs: ["barcelona", "castelldefels"] })).toContain(l.id);
+    expect(await ids({ q: tag, placeSlugs: ["valencia"] })).not.toContain(l.id);
+    expect(await ids({ q: tag, category: "deportes", subcategory: "kayak-y-paddle-surf" })).toEqual([l.id]);
+    expect(await ids({ q: tag, category: "deportes", subcategory: "golf" })).toEqual([]);
+  });
 });

@@ -65,6 +65,11 @@
   --font-sans: var(--font-inter), ui-sans-serif, system-ui, -apple-system, "Segoe UI", sans-serif;
 }
 
+/* Iconos de categoría: trazo en tinta y un detalle en color de marca. */
+.cat-icon .accent {
+  stroke: var(--brand);
+}
+
 body {
   background: var(--bg);
   color: var(--ink);
