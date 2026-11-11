@@ -1,0 +1,103 @@
+@import "tailwindcss";
+
+/* Colores del prototipo de Alquilaap, con modo oscuro automático. */
+:root {
+  --bg: #f5f6f2;
+  --surface: #ffffff;
+  --surface-2: #eceee7;
+  --line: #dadcd3;
+  --ink: #16201e;
+  --ink-2: #4c5753;
+  --ink-3: #7c8682;
+  --brand: #0f6b5c;
+  --brand-ink: #ffffff;
+  --brand-soft: #d9ece7;
+  --tag: #f3c536;
+  --tag-ink: #2a2105;
+  --tag-soft: #fbefc2;
+  --ok: #2f8a4c;
+  --ok-soft: #dcf0e2;
+  --warn: #b26b00;
+  --warn-soft: #f8e8cc;
+  --bad: #c2412d;
+  --bad-soft: #f7dcd6;
+}
+@media (prefers-color-scheme: dark) {
+  :root {
+    --bg: #0f1514;
+    --surface: #172020;
+    --surface-2: #1f2a29;
+    --line: #2c3836;
+    --ink: #e8eeec;
+    --ink-2: #b2bdb9;
+    --ink-3: #7f8b87;
+    --brand: #4fb8a3;
+    --brand-ink: #062621;
+    --brand-soft: #173a34;
+    --tag-soft: #3a3214;
+    --ok-soft: #173322;
+    --warn-soft: #3a2a10;
+    --bad-soft: #3d1c16;
+  }
+}
+
+@theme inline {
+  --color-bg: var(--bg);
+  --color-surface: var(--surface);
+  --color-surface-2: var(--surface-2);
+  --color-line: var(--line);
+  --color-ink: var(--ink);
+  --color-ink-2: var(--ink-2);
+  --color-ink-3: var(--ink-3);
+  --color-brand: var(--brand);
+  --color-brand-ink: var(--brand-ink);
+  --color-brand-soft: var(--brand-soft);
+  --color-tag: var(--tag);
+  --color-tag-ink: var(--tag-ink);
+  --color-tag-soft: var(--tag-soft);
+  --color-ok: var(--ok);
+  --color-ok-soft: var(--ok-soft);
+  --color-warn: var(--warn);
+  --color-warn-soft: var(--warn-soft);
+  --color-bad: var(--bad);
+  --color-bad-soft: var(--bad-soft);
+  --font-display: var(--font-bricolage), ui-sans-serif, system-ui, sans-serif;
+  --font-sans: var(--font-inter), ui-sans-serif, system-ui, -apple-system, "Segoe UI", sans-serif;
+}
+
+body {
+  background: var(--bg);
+  color: var(--ink);
+}
+
+/* Clases propias reutilizables (Tailwind v4). */
+@utility btn {
+  @apply inline-flex items-center justify-center gap-2 rounded-xl px-4 py-2.5 text-sm font-semibold transition disabled:opacity-50;
+}
+@utility btn-primary {
+  @apply btn bg-brand text-brand-ink hover:opacity-90;
+}
+@utility btn-ghost {
+  @apply btn border border-line bg-surface text-ink hover:bg-surface-2;
+}
+@utility btn-danger {
+  @apply btn border border-bad/40 bg-bad-soft text-bad hover:opacity-90;
+}
+@utility card {
+  @apply rounded-2xl border border-line bg-surface;
+}
+@utility input {
+  @apply w-full rounded-xl border border-line bg-surface px-3 py-2.5 text-sm text-ink outline-none focus:border-brand focus:ring-2 focus:ring-brand/20;
+}
+@utility label {
+  @apply mb-1 block text-sm font-medium text-ink-2;
+}
+@utility pill {
+  @apply inline-flex items-center gap-1 rounded-full px-2.5 py-0.5 text-xs font-semibold;
+}
+@utility h1 {
+  @apply font-display text-3xl font-extrabold tracking-tight sm:text-4xl;
+}
+@utility h2 {
+  @apply font-display text-xl font-bold tracking-tight;
+}
