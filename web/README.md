@@ -35,9 +35,21 @@ npm test                                         # reglas de negocio
 TEST_DATABASE_URL=postgresql://... npm run test:db   # también contra PostgreSQL real
 ```
 
-## Pendiente para producción
+## Publicar en Railway
 
-- Fotos en S3/R2 (ahora en disco local: `src/lib/storage.ts`).
-- Verificación de identidad con Stripe Identity (ahora `KYC_AUTO_APPROVE` en desarrollo; en producción queda «pendiente»).
+`railway.json` ya trae la configuración: al arrancar aplica las migraciones (`npm run start:prod`) y Railway comprueba `/api/v1/health` antes de pasar el tráfico a la versión nueva (sin cortes).
+
+1. En Railway: New Project → Deploy from GitHub repo → `alquilaap`. En Settings del servicio, Root Directory = `web`.
+2. Añade una base de datos PostgreSQL al proyecto y, en Variables del servicio, `DATABASE_URL = ${{Postgres.DATABASE_URL}}`.
+3. Resto de variables: `ID_HASH_SECRET` (texto largo aleatorio), `APP_URL` (la URL pública), `ADMIN_EMAILS`, `S3_*` (Cloudflare R2), `STRIPE_SECRET_KEY` y `STRIPE_WEBHOOK_SECRET`.
+4. En Stripe, webhook a `<APP_URL>/api/v1/stripe/webhook` con los eventos `checkout.session.completed`, `customer.subscription.updated` y `customer.subscription.deleted`.
+
+## Administración
+
+Los emails de `ADMIN_EMAILS` ven el enlace «Admin» (`/admin`): aprobar o rechazar verificaciones de identidad (con la foto del documento y el selfie) y ver incidencias abiertas. Los documentos se guardan en privado y solo los ve un administrador.
+
+## Pendiente
+
+- Verificación automática con Stripe Identity (ahora se aprueba a mano en `/admin`; en local, `KYC_AUTO_APPROVE`).
 - Emails (bienvenida, nueva reserva) y recuperación de contraseña.
 - Panel de soporte para incidencias y verificaciones.

@@ -2,6 +2,7 @@ import type { Metadata, Viewport } from "next";
 import Link from "next/link";
 import { Bricolage_Grotesque, Inter } from "next/font/google";
 import { currentUser, isProUser } from "@/lib/auth";
+import { isAdmin } from "@/lib/admin";
 import { logout } from "./actions/auth";
 import "./globals.css";
 
@@ -44,6 +45,11 @@ export default async function RootLayout({ children }: { children: React.ReactNo
                     {user.name.split(" ")[0]}
                     {isProUser(user) && <span className="pill ml-1 bg-tag text-tag-ink">PRO</span>}
                   </Link>
+                  {isAdmin(user) && (
+                    <Link href="/admin" className="hidden rounded-lg px-3 py-2 hover:bg-surface-2 sm:inline">
+                      Admin
+                    </Link>
+                  )}
                   <form action={logout} className="hidden sm:block">
                     <button className="rounded-lg px-3 py-2 text-ink-3 hover:bg-surface-2">Salir</button>
                   </form>
