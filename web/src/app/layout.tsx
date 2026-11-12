@@ -4,11 +4,13 @@ import { currentUser, isProUser } from "@/lib/auth";
 import { isAdmin } from "@/lib/admin";
 import { unreadCount } from "@/lib/messages";
 import { logout } from "./actions/auth";
+import { Logo } from "@/components/Logo";
 // Fuentes incluidas en la app (sin descargarlas de Google al construir: así el despliegue no depende de ello).
 import "@fontsource-variable/inter/index.css";
 import "@fontsource/bricolage-grotesque/latin-600.css";
 import "@fontsource/bricolage-grotesque/latin-700.css";
 import "@fontsource/bricolage-grotesque/latin-800.css";
+import "@fontsource/nunito/latin-800.css";
 import "./globals.css";
 
 
@@ -16,6 +18,9 @@ export const metadata: Metadata = {
   metadataBase: new URL(process.env.APP_URL ?? "http://localhost:3000"),
   title: { default: "Alquilaap · Alquila lo que necesitas, cerca de ti", template: "%s · Alquilaap" },
   description: "Alquila bicis, herramientas, material de camping y mucho más a particulares y tiendas. Publicar es gratis.",
+  applicationName: "Alquilaap",
+  appleWebApp: { capable: true, title: "Alquilaap", statusBarStyle: "default" },
+  icons: { apple: "/icons/apple-touch-icon.png" },
 };
 export const viewport: Viewport = { themeColor: "#0f6b5c", width: "device-width", initialScale: 1 };
 
@@ -27,8 +32,8 @@ export default async function RootLayout({ children }: { children: React.ReactNo
       <body className="min-h-dvh font-sans antialiased">
         <header className="sticky top-0 z-20 border-b border-line bg-surface/90 backdrop-blur">
           <div className="mx-auto flex max-w-6xl items-center gap-3 px-4 py-3">
-            <Link href="/" className="font-display text-xl font-extrabold tracking-tight text-brand">
-              alquilaap
+            <Link href="/" aria-label="Alquilaap, inicio" className="shrink-0">
+              <Logo compact={!!user} />
             </Link>
             <form action="/buscar" className="hidden flex-1 sm:block">
               <input name="q" placeholder="¿Qué necesitas alquilar?" className="input max-w-md" aria-label="Buscar" />
@@ -86,6 +91,8 @@ export default async function RootLayout({ children }: { children: React.ReactNo
             <span>© Alquilaap</span>
             <Link href="/pro">Alquilaap Pro para tiendas</Link>
             <Link href="/como-funciona">Cómo funciona</Link>
+            <Link href="/condiciones">Condiciones</Link>
+            <Link href="/privacidad">Privacidad</Link>
             <span>Publicar y alquilar es gratis. El alquiler se paga en mano.</span>
           </div>
         </footer>

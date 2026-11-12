@@ -59,6 +59,7 @@ model User {
   kycSubmittedAt   DateTime?
   kycVerifiedAt    DateTime?
   stripeCustomerId String?   @unique
+  deletedAt        DateTime? // cuenta borrada: datos personales eliminados, se conserva el historial anónimo
 
   sessions       Session[]
   listings       Listing[]

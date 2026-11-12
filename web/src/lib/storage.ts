@@ -1,8 +1,8 @@
 import "server-only";
-import { mkdir, readFile, writeFile } from "node:fs/promises";
+import { mkdir, readFile, rm, writeFile } from "node:fs/promises";
 import { randomUUID } from "node:crypto";
 import path from "node:path";
-import { GetObjectCommand, PutObjectCommand, S3Client } from "@aws-sdk/client-s3";
+import { DeleteObjectCommand, GetObjectCommand, PutObjectCommand, S3Client } from "@aws-sdk/client-s3";
 import { UserError } from "./errors";
 
 // Fotos y documentos:
@@ -68,6 +68,16 @@ export async function readImage(key: string): Promise<{ body: Uint8Array; conten
   } catch {
     return null;
   }
+}
+
+/** Borra un archivo guardado (acepta "private:kyc/..." o "/media/listings/..."). No falla si ya no existe. */
+export async function deleteStored(ref: string | null | undefined) {
+  if (!ref) return;
+  const key = ref.replace(/^private:/, "").replace(/^\/media\//, "");
+  if (!isValidKey(key)) return;
+  const b = bucket();
+  if (b) await b.client.send(new DeleteObjectCommand({ Bucket: b.name, Key: key }));
+  else await rm(localPath(key), { force: true });
 }
 
 export class StorageError extends UserError {}

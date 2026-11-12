@@ -18,7 +18,7 @@ export default async function Conversacion({ params, searchParams }: { params: P
   const c = await openConversation(user.id, id);
   if (!c) notFound();
   const { error } = await searchParams;
-  const canWrite = c.listing.status !== "deleted";
+  const canWrite = c.listing.status !== "deleted" && !c.other.deletedAt;
 
   return (
     <div className="mx-auto max-w-2xl space-y-4">
@@ -79,7 +79,7 @@ export default async function Conversacion({ params, searchParams }: { params: P
             <button className="btn-primary">Enviar</button>
           </form>
         ) : (
-          <p className="text-sm text-ink-3">Este anuncio se ha eliminado: ya no se pueden enviar mensajes.</p>
+          <p className="text-sm text-ink-3">{c.other.deletedAt ? "Esta persona ha borrado su cuenta" : "Este anuncio se ha eliminado"}: ya no se pueden enviar mensajes.</p>
         )}
         <p className="text-xs text-ink-3">Por seguridad, entrega y paga siempre en persona. Alquilaap nunca te pedirá pagos por adelantado ni códigos.</p>
       </section>

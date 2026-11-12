@@ -66,9 +66,13 @@ export async function conversationForBooking(userId: string, bookingId: string) 
 
 export async function sendMessage(userId: string, conversationId: string, body: string, bookingId?: string) {
   const text = cleanBody(body);
-  const conv = await db.conversation.findUnique({ where: { id: conversationId }, include: { listing: { select: { status: true } } } });
+  const conv = await db.conversation.findUnique({
+    where: { id: conversationId },
+    include: { listing: { select: { status: true } }, owner: { select: { deletedAt: true } }, renter: { select: { deletedAt: true } } },
+  });
   const side = conv && sideOf(conv, userId);
   if (!conv || !side) throw new MessageError("Conversación no encontrada");
+  if (conv.owner.deletedAt || conv.renter.deletedAt) throw new MessageError("Esta persona ha borrado su cuenta y ya no recibe mensajes");
   if (conv.listing.status === "deleted") throw new MessageError("Este anuncio se ha eliminado y ya no admite mensajes");
   await checkBurst(userId);
   const now = new Date();
@@ -131,8 +135,8 @@ export async function openConversation(userId: string, conversationId: string) {
     where: { id: conversationId },
     include: {
       listing: { select: { id: true, title: true, pricePerDayCents: true, status: true, city: true, photos: { take: 1, orderBy: { position: "asc" } } } },
-      owner: { select: { id: true, name: true, kycStatus: true } },
-      renter: { select: { id: true, name: true, kycStatus: true } },
+      owner: { select: { id: true, name: true, kycStatus: true, deletedAt: true } },
+      renter: { select: { id: true, name: true, kycStatus: true, deletedAt: true } },
       messages: { orderBy: { createdAt: "asc" }, take: 500 },
     },
   });

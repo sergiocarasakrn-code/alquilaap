@@ -103,9 +103,14 @@ export default async function Perfil({ searchParams }: { searchParams: Promise<R
         )}
       </section>
 
-      <form action={logout}>
-        <button className="btn-ghost">Cerrar sesión</button>
-      </form>
+      <div className="flex flex-wrap items-center justify-between gap-3">
+        <form action={logout}>
+          <button className="btn-ghost">Cerrar sesión</button>
+        </form>
+        <Link href="/borrar-cuenta" className="text-sm font-semibold text-bad">
+          Borrar mi cuenta
+        </Link>
+      </div>
     </div>
   );
 }

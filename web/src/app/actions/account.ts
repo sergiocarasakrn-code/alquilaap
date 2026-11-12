@@ -2,7 +2,9 @@
 import { redirect } from "next/navigation";
 import { Prisma } from "@prisma/client";
 import { db } from "@/lib/db";
-import { requireUser } from "@/lib/auth";
+import { destroySession, requireUser } from "@/lib/auth";
+import { verifyPassword } from "@/lib/password";
+import { deleteAccount } from "@/lib/account";
 import { ageOn, hashIdNumber, normalizeIdNumber } from "@/lib/dni";
 import { parseDay } from "@/lib/format";
 import { saveImage } from "@/lib/storage";
@@ -85,4 +87,16 @@ export async function subscribePro() {
   const user = await requireUser("/pro");
   const url = await runOrBack("/pro", () => startProCheckout(user.id));
   redirect(url);
+}
+
+/** Borrar la cuenta (lo exige Google Play y el RGPD). Pide la contraseña para confirmar. */
+export async function deleteMyAccount(fd: FormData) {
+  const user = await requireUser("/borrar-cuenta");
+  await runOrBack("/borrar-cuenta", async () => {
+    if (fd.get("confirm") !== "on") throw new UserError("Marca la casilla para confirmar que quieres borrar la cuenta");
+    if (!(await verifyPassword(str(fd, "password"), user.passwordHash))) throw new UserError("La contraseña no es correcta");
+    await deleteAccount(user.id);
+  });
+  await destroySession();
+  redirect("/?cuenta=borrada");
 }
