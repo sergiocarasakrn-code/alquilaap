@@ -3,7 +3,8 @@ import { redirect } from "next/navigation";
 import { revalidatePath } from "next/cache";
 import { requireUser } from "@/lib/auth";
 import { parseDay } from "@/lib/format";
-import { actOnBooking, createBooking, leaveReview, sendMessage } from "@/lib/bookings";
+import { actOnBooking, createBooking, leaveReview } from "@/lib/bookings";
+import { conversationForBooking, sendMessage } from "@/lib/messages";
 import type { Action } from "@/lib/booking-rules";
 import { runOrBack, str, UserError } from "./util";
 
@@ -46,6 +47,9 @@ export async function reviewBooking(bookingId: string, fd: FormData) {
 export async function postMessage(bookingId: string, fd: FormData) {
   const back = `/reservas/${bookingId}`;
   const user = await requireUser(back);
-  await runOrBack(back, () => sendMessage(user.id, bookingId, str(fd, "body")));
+  await runOrBack(back, async () => {
+    const conv = await conversationForBooking(user.id, bookingId);
+    await sendMessage(user.id, conv.id, str(fd, "body"), bookingId);
+  });
   redirect(`${back}#chat`);
 }

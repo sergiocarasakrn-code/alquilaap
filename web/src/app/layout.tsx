@@ -2,6 +2,7 @@ import type { Metadata, Viewport } from "next";
 import Link from "next/link";
 import { currentUser, isProUser } from "@/lib/auth";
 import { isAdmin } from "@/lib/admin";
+import { unreadCount } from "@/lib/messages";
 import { logout } from "./actions/auth";
 // Fuentes incluidas en la app (sin descargarlas de Google al construir: así el despliegue no depende de ello).
 import "@fontsource-variable/inter/index.css";
@@ -20,6 +21,7 @@ export const viewport: Viewport = { themeColor: "#0f6b5c", width: "device-width"
 
 export default async function RootLayout({ children }: { children: React.ReactNode }) {
   const user = await currentUser();
+  const unread = user ? await unreadCount(user.id) : 0;
   return (
     <html lang="es">
       <body className="min-h-dvh font-sans antialiased">
@@ -37,6 +39,17 @@ export default async function RootLayout({ children }: { children: React.ReactNo
               </Link>
               {user ? (
                 <>
+                  <Link href="/mensajes" className="relative rounded-lg px-2 py-2 hover:bg-surface-2 sm:px-3" aria-label={unread ? `Mensajes, ${unread} sin leer` : "Mensajes"}>
+                    <svg viewBox="0 0 24 24" className="h-5 w-5 sm:hidden" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" aria-hidden>
+                      <path d="M4 5h16v11H9l-5 4z" />
+                    </svg>
+                    <span className="hidden sm:inline">Mensajes</span>
+                    {unread > 0 && (
+                      <span className="absolute -right-0.5 top-0.5 grid h-4 min-w-4 place-items-center rounded-full bg-bad px-1 text-[10px] font-bold leading-none text-white">
+                        {unread > 9 ? "9+" : unread}
+                      </span>
+                    )}
+                  </Link>
                   <Link href="/reservas" className="rounded-lg px-2 py-2 hover:bg-surface-2 sm:px-3">
                     Reservas
                   </Link>

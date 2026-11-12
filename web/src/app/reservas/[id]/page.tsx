@@ -6,6 +6,7 @@ import { money, shortDate } from "@/lib/format";
 import { ACTION_LABEL, availableActions, type Role, type Status } from "@/lib/booking-rules";
 import { bookingAction, postMessage, reviewBooking } from "@/app/actions/bookings";
 import { Notice, StatusPill } from "@/components/ui";
+import { markRead } from "@/lib/messages";
 
 export const metadata = { title: "Reserva" };
 
@@ -29,12 +30,18 @@ export default async function Reserva({ params, searchParams }: { params: Promis
       listing: { include: { photos: { take: 1, orderBy: { position: "asc" } } } },
       owner: { select: { id: true, name: true, phone: true } },
       renter: { select: { id: true, name: true, phone: true } },
-      messages: { orderBy: { createdAt: "asc" }, include: { sender: { select: { name: true } } } },
       reviews: true,
     },
   });
   if (!b || (b.ownerId !== user.id && b.renterId !== user.id)) notFound();
   const { error } = await searchParams;
+  // El chat de la reserva es la conversación entre estas dos personas sobre este anuncio.
+  const conv = await db.conversation.findUnique({
+    where: { listingId_renterId: { listingId: b.listingId, renterId: b.renterId } },
+    include: { messages: { orderBy: { createdAt: "asc" }, take: 500 } },
+  });
+  const messages = conv?.messages ?? [];
+  if (conv) await markRead(user.id, conv);
   const role: Role = b.ownerId === user.id ? "owner" : "renter";
   const other = role === "owner" ? b.renter : b.owner;
   const actions = availableActions(b, role);
@@ -160,11 +167,18 @@ export default async function Reserva({ params, searchParams }: { params: Promis
       )}
 
       <section id="chat" className="card space-y-3 p-4">
-        <h2 className="h2">Mensajes</h2>
-        {b.messages.length === 0 && <p className="text-sm text-ink-3">Acordad aquí la hora y el lugar de recogida.</p>}
+        <div className="flex items-center justify-between gap-2">
+          <h2 className="h2">Mensajes</h2>
+          {conv && (
+            <Link href={`/mensajes/${conv.id}`} className="text-sm font-semibold text-brand">
+              Abrir conversación
+            </Link>
+          )}
+        </div>
+        {messages.length === 0 && <p className="text-sm text-ink-3">Acordad aquí la hora y el lugar de recogida.</p>}
         <ul className="space-y-2">
-          {b.messages.map((m) => (
-            <li key={m.id} className={`max-w-[85%] rounded-2xl px-3 py-2 text-sm ${m.senderId === user.id ? "ml-auto bg-brand text-brand-ink" : "bg-surface-2"}`}>
+          {messages.map((m) => (
+            <li key={m.id} className={`max-w-[85%] rounded-2xl whitespace-pre-line px-3 py-2 text-sm ${m.senderId === user.id ? "ml-auto bg-brand text-brand-ink" : "bg-surface-2"}`}>
               {m.body}
               <span className="mt-0.5 block text-[11px] opacity-70">{fmtTime.format(m.createdAt)}</span>
             </li>

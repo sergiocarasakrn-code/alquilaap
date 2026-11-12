@@ -105,11 +105,3 @@ export async function leaveReview(userId: string, bookingId: string, rating: num
     throw e;
   }
 }
-
-export async function sendMessage(userId: string, bookingId: string, body: string) {
-  const text = body.trim();
-  if (!text) return;
-  const b = await db.booking.findUnique({ where: { id: bookingId }, select: { ownerId: true, renterId: true } });
-  if (!b || (b.ownerId !== userId && b.renterId !== userId)) throw new BookingError("Reserva no encontrada");
-  await db.message.create({ data: { bookingId, senderId: userId, body: text.slice(0, 2000) } });
-}

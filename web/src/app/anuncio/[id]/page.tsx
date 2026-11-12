@@ -7,6 +7,8 @@ import { categoryName, subcategoryName } from "@/lib/config";
 import { dayKey, money, shortDate, todayUTC } from "@/lib/format";
 import { userStats } from "@/lib/listings";
 import { requestBooking } from "@/app/actions/bookings";
+import { contactListingOwner } from "@/app/actions/messages";
+import { MAX_LENGTH } from "@/lib/messages";
 import { BookingForm } from "@/components/BookingForm";
 import { Notice, Trust, first } from "@/components/ui";
 
@@ -47,6 +49,10 @@ export default async function Anuncio({ params, searchParams }: { params: P; sea
     db.review.findMany({ where: { targetId: l.ownerId }, include: { author: { select: { name: true } } }, orderBy: { createdAt: "desc" }, take: 5 }),
   ]);
   const ownerPro = isProUser(l.owner);
+  const conversation =
+    user && !isOwner ? await db.conversation.findUnique({ where: { listingId_renterId: { listingId: l.id, renterId: user.id } }, select: { id: true } }) : null;
+  const firstName = l.owner.name.split(" ")[0];
+  const msgError = first(sp.de) === "mensaje";
 
   let disabledReason: string | undefined;
   if (isOwner) disabledReason = "Este es tu anuncio.";
@@ -56,7 +62,7 @@ export default async function Anuncio({ params, searchParams }: { params: P; sea
   return (
     <div className="grid gap-6 lg:grid-cols-[1fr_360px]">
       <div className="space-y-5">
-        <Notice error={sp.error} ok={first(sp.publicado) ? "¡Anuncio publicado! Ya aparece en las búsquedas." : undefined} />
+        <Notice error={msgError ? undefined : sp.error} ok={first(sp.publicado) ? "¡Anuncio publicado! Ya aparece en las búsquedas." : undefined} />
         <div className="grid gap-2 sm:grid-cols-2">
           {l.photos.map((p, i) => (
             // eslint-disable-next-line @next/next/no-img-element
@@ -122,6 +128,7 @@ export default async function Anuncio({ params, searchParams }: { params: P; sea
             </Link>
           </div>
         )}
+        <div id="reservar" />
         {user || isOwner ? (
           <BookingForm
             action={requestBooking.bind(null, l.id)}
@@ -140,6 +147,36 @@ export default async function Anuncio({ params, searchParams }: { params: P; sea
             <Link href={`/entrar?next=/anuncio/${l.id}`} className="btn-primary w-full">
               Entra para reservar
             </Link>
+          </div>
+        )}
+        {!isOwner && (
+          <div id="mensaje" className="card space-y-3 p-4">
+            <p className="font-semibold">¿Tienes alguna duda?</p>
+            {msgError && <Notice error={sp.error} />}
+            {!user ? (
+              <Link href={`/entrar?next=${encodeURIComponent(`/anuncio/${l.id}#mensaje`)}`} className="btn-ghost w-full">
+                Entra para enviar un mensaje
+              </Link>
+            ) : conversation ? (
+              <Link href={`/mensajes/${conversation.id}`} className="btn-ghost w-full">
+                Ver tu conversación con {firstName}
+              </Link>
+            ) : l.status === "active" ? (
+              <form action={contactListingOwner.bind(null, l.id)} className="space-y-2">
+                <textarea
+                  name="body"
+                  required
+                  maxLength={MAX_LENGTH}
+                  rows={3}
+                  className="input"
+                  aria-label={`Mensaje para ${firstName}`}
+                  defaultValue={`Hola ${firstName}, ¿está disponible para `}
+                />
+                <button className="btn-ghost w-full">Enviar mensaje a {firstName}</button>
+              </form>
+            ) : (
+              <p className="text-sm text-ink-3">Este anuncio está en pausa.</p>
+            )}
           </div>
         )}
       </aside>

@@ -41,7 +41,7 @@ Railway construye la app con el `Dockerfile` de la raíz del repositorio (lo ind
 
 1. En Railway: New Project → Deploy from GitHub repo → `alquilaap`. Deja «Root Directory» vacío.
 2. Añade una base de datos PostgreSQL al proyecto y, en Variables del servicio, `DATABASE_URL = ${{Postgres.DATABASE_URL}}`.
-3. Resto de variables: `ID_HASH_SECRET` (texto largo aleatorio), `APP_URL` (la URL pública), `ADMIN_EMAILS`, `S3_*` (Cloudflare R2), `STRIPE_SECRET_KEY` y `STRIPE_WEBHOOK_SECRET`.
+3. Resto de variables: `ID_HASH_SECRET` (texto largo aleatorio), `APP_URL` (la URL pública), `ADMIN_EMAILS`, `S3_*` (Cloudflare R2), `STRIPE_SECRET_KEY` y `STRIPE_WEBHOOK_SECRET`. Opcional: `RESEND_API_KEY` y `EMAIL_FROM` para avisar por email de los mensajes nuevos.
 4. En Stripe, webhook a `<APP_URL>/api/v1/stripe/webhook` con los eventos `checkout.session.completed`, `customer.subscription.updated` y `customer.subscription.deleted`.
 
 Las fuentes (Inter y Bricolage Grotesque) van dentro de la app (`@fontsource`), así que construir no depende de descargar nada de Google.
