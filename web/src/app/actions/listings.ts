@@ -31,7 +31,7 @@ function readForm(fd: FormData) {
   const lat = Number(str(fd, "lat"));
   const lng = Number(str(fd, "lng"));
   const own = str(fd, "lat") !== "" && Number.isFinite(lat) && Number.isFinite(lng) && inSpain(lat, lng);
-  return { title, description: description.slice(0, 4000), category, subcategory, citySlug, city: c.name, lat: own ? fuzz(lat) : c.lat, lng: own ? fuzz(lng) : c.lng, pricePerDayCents: price, depositCents: deposit };
+  return { title, description: description.slice(0, 4000), category, subcategory, citySlug, city: c.name, lat: own ? fuzz(lat) : c.lat, lng: own ? fuzz(lng) : c.lng, pricePerDayCents: price, depositCents: deposit, verifiedOnly: fd.get("verifiedOnly") === "on" };
 }
 
 const photosOf = (fd: FormData) => fd.getAll("photos").filter((f): f is File => f instanceof File && f.size > 0);
@@ -39,7 +39,6 @@ const photosOf = (fd: FormData) => fd.getAll("photos").filter((f): f is File => 
 export async function createListing(fd: FormData) {
   const user = await requireUser("/publicar");
   const id = await runOrBack("/publicar", async () => {
-    if (user.kycStatus !== "verified") throw new UserError("Verifica tu identidad en tu perfil antes de publicar");
     const data = readForm(fd);
     const photos = photosOf(fd);
     if (photos.length === 0) throw new UserError("Añade al menos una foto");

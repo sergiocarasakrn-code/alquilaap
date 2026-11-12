@@ -5,7 +5,8 @@ import { money } from "@/lib/format";
 export const metadata = { title: "Cómo funciona" };
 
 const STEPS = [
-  ["Regístrate y verifica tu identidad", "Nombre, DNI o NIE, fecha de nacimiento, teléfono, dirección, foto del documento y un selfie. Solo una vez. Así evitamos robos."],
+  ["Regístrate gratis", "Con tu nombre y email ya puedes buscar, escribir, publicar y reservar."],
+  ["Verifica tu identidad (opcional)", "Con DNI o NIE y un selfie, solo una vez. Consigues el sello «✓ Verificado», más confianza y acceso a los anuncios que solo aceptan usuarios verificados."],
   ["Publica gratis o busca lo que necesitas", "Publicar y alquilar no cuesta nada. Si quieres más visitas, puedes destacar tu anuncio."],
   ["Solicita la reserva", "El propietario la acepta (o se acepta al momento si es Tienda Pro). Acordad la recogida por el chat."],
   ["Al entregar: los dos marcáis «alquilado»", "El alquiler y la fianza se pagan en mano. Alquilaap no cobra comisión ni retiene dinero."],

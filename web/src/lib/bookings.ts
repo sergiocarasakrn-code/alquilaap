@@ -22,17 +22,20 @@ async function overlaps(tx: Prisma.TransactionClient, listingId: string, start: 
 
 export async function createBooking(userId: string, input: { listingId: string; start: Date; end: Date; insurance: boolean }) {
   const user = await db.user.findUniqueOrThrow({ where: { id: userId } });
-  if (user.kycStatus !== "verified") throw new BookingError("Verifica tu identidad antes de reservar");
   const listing = await db.listing.findUnique({ where: { id: input.listingId }, include: { owner: { include: { subscription: true } } } });
   if (!listing || listing.status !== "active") throw new BookingError("Este anuncio ya no está disponible");
   if (listing.ownerId === userId) throw new BookingError("No puedes reservar tu propio anuncio");
+  // La verificación es opcional, pero cada propietario puede exigirla en su anuncio.
+  const verified = user.kycStatus === "verified";
+  if (listing.verifiedOnly && !verified)
+    throw new BookingError("Este propietario solo acepta reservas de usuarios con la identidad verificada. Verifícate en tu perfil.");
   if (input.start < todayUTC()) throw new BookingError("La fecha de inicio ya ha pasado");
   if (input.end < input.start) throw new BookingError("La fecha de fin debe ser posterior a la de inicio");
   const q = quote(listing.pricePerDayCents, listing.depositCents, input.start, input.end, input.insurance);
   if (q.days > MAX_DAYS) throw new BookingError(`Máximo ${MAX_DAYS} días por reserva`);
 
-  // Alquilaap Pro: reserva inmediata, sin esperar a que el propietario acepte.
-  const instant = isProUser(listing.owner);
+  // Alquilaap Pro: reserva inmediata, sin esperar a que el propietario acepte (solo con clientes verificados).
+  const instant = isProUser(listing.owner) && verified;
   try {
     return await db.$transaction(async (tx) => {
       if (await overlaps(tx, listing.id, input.start, input.end)) throw new BookingError("Esas fechas ya están reservadas");

@@ -37,9 +37,16 @@ export function ListingCard({ l }: { l: Card }) {
           {categoryName(l.category)} · {l.city}
           {l.distanceKm !== undefined && ` · ${l.distanceKm < 1 ? "<1" : Math.round(l.distanceKm)} km`}
         </p>
-        <p className="mt-1.5">
-          <span className="font-display text-lg font-extrabold">{money(l.pricePerDayCents)}</span>
-          <span className="text-sm text-ink-3"> / día</span>
+        <p className="mt-1.5 flex items-baseline justify-between gap-2">
+          <span>
+            <span className="font-display text-lg font-extrabold">{money(l.pricePerDayCents)}</span>
+            <span className="text-sm text-ink-3"> / día</span>
+          </span>
+          {l.owner.kycStatus === "verified" && (
+            <span className="shrink-0 text-xs font-semibold text-ok" title="Identidad verificada">
+              ✓ Verificado
+            </span>
+          )}
         </p>
       </div>
     </Link>

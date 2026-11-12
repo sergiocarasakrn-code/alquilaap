@@ -31,7 +31,7 @@ export default function Privacidad() {
           <strong>Cuenta:</strong> nombre, email y contraseña (guardada cifrada; nunca la vemos).
         </li>
         <li>
-          <strong>Verificación de identidad</strong> (obligatoria para alquilar y publicar, para evitar robos): nombre y apellidos, DNI o NIE, fecha de nacimiento,
+          <strong>Verificación de identidad</strong> (opcional; da el sello «Verificado» y ayuda a prevenir robos): nombre y apellidos, DNI o NIE, fecha de nacimiento,
           teléfono, dirección, foto del documento y un selfie. Del DNI o NIE no guardamos el número: solo una huella cifrada (para impedir cuentas duplicadas) y los
           4 últimos caracteres.
         </li>

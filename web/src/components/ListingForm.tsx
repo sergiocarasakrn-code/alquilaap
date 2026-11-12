@@ -11,6 +11,7 @@ interface Defaults {
   lng?: number | null;
   pricePerDayCents?: number;
   depositCents?: number;
+  verifiedOnly?: boolean;
 }
 
 const euros = (c?: number) => (c === undefined ? "" : (c / 100).toFixed(2).replace(".", ",").replace(",00", ""));
@@ -45,6 +46,13 @@ export function ListingForm({ action, d = {}, submit, photosRequired }: { action
       <label className="sm:col-span-2">
         <span className="label">Fotos {photosRequired ? "(al menos una, máx. 8)" : "(añadir más)"}</span>
         <input name="photos" type="file" accept="image/jpeg,image/png,image/webp" multiple required={photosRequired} className="input" />
+      </label>
+      <label className="flex items-start gap-2 rounded-xl bg-surface-2 p-3 text-sm sm:col-span-2">
+        <input type="checkbox" name="verifiedOnly" defaultChecked={d.verifiedOnly} className="mt-0.5" />
+        <span>
+          <span className="font-semibold">Solo aceptar reservas de usuarios verificados</span>
+          <span className="block text-ink-3">Más seguridad: solo podrán reservar quienes hayan verificado su identidad con DNI o NIE. Cualquiera podrá seguir escribiéndote.</span>
+        </span>
       </label>
       <div className="sm:col-span-2">
         <button className="btn-primary w-full sm:w-auto">{submit}</button>

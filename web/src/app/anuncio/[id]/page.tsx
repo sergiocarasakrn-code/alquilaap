@@ -57,7 +57,8 @@ export default async function Anuncio({ params, searchParams }: { params: P; sea
   let disabledReason: string | undefined;
   if (isOwner) disabledReason = "Este es tu anuncio.";
   else if (l.status !== "active") disabledReason = "Este anuncio está en pausa.";
-  else if (user && user.kycStatus !== "verified") disabledReason = "Verifica tu identidad en tu perfil para poder reservar.";
+  else if (l.verifiedOnly && user && user.kycStatus !== "verified")
+    disabledReason = "Este propietario solo acepta reservas de usuarios verificados. Verifica tu identidad en tu perfil (solo se hace una vez).";
 
   return (
     <div className="grid gap-6 lg:grid-cols-[1fr_360px]">
@@ -86,7 +87,8 @@ export default async function Anuncio({ params, searchParams }: { params: P; sea
         <div className="card space-y-2 p-4">
           <p className="font-semibold">{l.owner.name}</p>
           <Trust stats={stats} verified={l.owner.kycStatus === "verified"} pro={ownerPro} />
-          {ownerPro && <p className="text-sm text-ink-2">Reserva inmediata: tu reserva queda aceptada al momento.</p>}
+          {ownerPro && <p className="text-sm text-ink-2">Reserva inmediata para usuarios verificados: tu reserva queda aceptada al momento.</p>}
+          {l.verifiedOnly && <p className="text-sm text-ink-2">Solo acepta reservas de usuarios con la identidad verificada.</p>}
         </div>
         {booked.length > 0 && (
           <div>
