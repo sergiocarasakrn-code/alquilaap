@@ -3,7 +3,7 @@ import { notFound } from "next/navigation";
 import type { Metadata } from "next";
 import { db } from "@/lib/db";
 import { currentUser, isProUser } from "@/lib/auth";
-import { categoryName, subcategoryName } from "@/lib/config";
+import { categoryName, PAID_FEATURES, subcategoryName } from "@/lib/config";
 import { dayKey, money, shortDate, todayUTC } from "@/lib/format";
 import { userStats } from "@/lib/listings";
 import { requestBooking } from "@/app/actions/bookings";
@@ -125,9 +125,11 @@ export default async function Anuncio({ params, searchParams }: { params: P; sea
             <Link href={`/anuncio/${l.id}/editar`} className="btn-ghost flex-1">
               Editar
             </Link>
-            <Link href={`/destacar/${l.id}`} className="btn flex-1 bg-tag text-tag-ink">
-              Destacar
-            </Link>
+            {PAID_FEATURES && (
+              <Link href={`/destacar/${l.id}`} className="btn flex-1 bg-tag text-tag-ink">
+                Destacar
+              </Link>
+            )}
           </div>
         )}
         <div id="reservar" />

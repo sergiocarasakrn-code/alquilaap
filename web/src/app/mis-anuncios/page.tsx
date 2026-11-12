@@ -2,7 +2,7 @@ import Link from "next/link";
 import { requireUser } from "@/lib/auth";
 import { myListings } from "@/lib/listings";
 import { setListingStatus } from "@/app/actions/listings";
-import { categoryName, PACKS, type PackCode } from "@/lib/config";
+import { categoryName, PACKS, PAID_FEATURES, type PackCode } from "@/lib/config";
 import { money, shortDate } from "@/lib/format";
 import { Notice, first } from "@/components/ui";
 
@@ -42,15 +42,17 @@ export default async function MisAnuncios({ searchParams }: { searchParams: Prom
                         {PACKS[pack.packCode as PackCode]?.name} hasta {shortDate(pack.endsAt!)}
                       </span>
                     ) : (
-                      <span className="pill bg-surface-2 text-ink-3">Visibilidad normal (gratis)</span>
+                      PAID_FEATURES && <span className="pill bg-surface-2 text-ink-3">Visibilidad normal (gratis)</span>
                     )}
                   </p>
                 </div>
               </Link>
               <div className="flex flex-wrap gap-2">
-                <Link href={`/destacar/${l.id}`} className="btn bg-tag text-tag-ink">
-                  Destacar
-                </Link>
+                {PAID_FEATURES && (
+                  <Link href={`/destacar/${l.id}`} className="btn bg-tag text-tag-ink">
+                    Destacar
+                  </Link>
+                )}
                 <Link href={`/anuncio/${l.id}/editar`} className="btn-ghost">
                   Editar
                 </Link>

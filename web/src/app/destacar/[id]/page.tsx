@@ -2,7 +2,7 @@ import { notFound } from "next/navigation";
 import { randomUUID } from "node:crypto";
 import { db } from "@/lib/db";
 import { requireUser } from "@/lib/auth";
-import { PACK_LIST } from "@/lib/config";
+import { PACK_LIST, PAID_FEATURES } from "@/lib/config";
 import { money } from "@/lib/format";
 import { buyPack } from "@/app/actions/account";
 import { Notice } from "@/components/ui";
@@ -10,6 +10,7 @@ import { Notice } from "@/components/ui";
 export const metadata = { title: "Destacar anuncio" };
 
 export default async function Destacar({ params, searchParams }: { params: Promise<{ id: string }>; searchParams: Promise<{ error?: string }> }) {
+  if (!PAID_FEATURES) notFound();
   const { id } = await params;
   const user = await requireUser(`/destacar/${id}`);
   const l = await db.listing.findUnique({ where: { id } });

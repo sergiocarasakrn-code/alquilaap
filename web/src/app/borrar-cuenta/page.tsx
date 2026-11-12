@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { PAID_FEATURES } from "@/lib/config";
 import { currentUser } from "@/lib/auth";
 import { LEGAL } from "@/lib/legal";
 import { deleteMyAccount } from "@/app/actions/account";
@@ -18,13 +19,13 @@ export default async function BorrarCuenta({ searchParams }: { searchParams: Pro
           <li>La foto de tu documento y tu selfie.</li>
           <li>Todos tus anuncios y sus fotos.</li>
           <li>Las solicitudes de reserva pendientes, que se cancelan.</li>
-          <li>Tu suscripción a Alquilaap Pro, si la tienes, que se cancela.</li>
+          {PAID_FEATURES && <li>Tu suscripción a Alquilaap Pro, si la tienes, que se cancela.</li>}
         </ul>
         <p className="font-semibold text-ink">Qué se conserva, sin tu nombre</p>
         <ul className="ml-5 list-disc space-y-1">
           <li>El historial de reservas, mensajes y reseñas, porque también es de la otra persona. Aparecerás como «Usuario eliminado».</li>
           <li>Si tuviste una incidencia, una huella cifrada de tu DNI durante 5 años, solo para prevenir fraudes.</li>
-          <li>Las facturas de packs o suscripción, el tiempo que exige la ley.</li>
+          {PAID_FEATURES && <li>Las facturas de packs o suscripción, el tiempo que exige la ley.</li>}
         </ul>
         <p className="text-sm">
           Más detalles en la <Link href="/privacidad" className="font-semibold text-brand">política de privacidad</Link>. Si no puedes entrar en tu cuenta, escríbenos

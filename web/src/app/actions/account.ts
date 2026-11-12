@@ -8,7 +8,7 @@ import { deleteAccount } from "@/lib/account";
 import { ageOn, hashIdNumber, normalizeIdNumber } from "@/lib/dni";
 import { parseDay } from "@/lib/format";
 import { saveImage } from "@/lib/storage";
-import { isPackCode } from "@/lib/config";
+import { isPackCode, PAID_FEATURES } from "@/lib/config";
 import { activatePackPurchase, startPackPurchase, startProCheckout } from "@/lib/payments";
 import { devPaymentsAllowed } from "@/lib/stripe";
 import { runOrBack, str, UserError } from "./util";
@@ -62,6 +62,7 @@ export async function submitKyc(fd: FormData) {
 
 export async function buyPack(listingId: string, fd: FormData) {
   const back = `/destacar/${listingId}`;
+  if (!PAID_FEATURES) redirect("/mis-anuncios");
   const user = await requireUser(back);
   const url = await runOrBack(back, async () => {
     const code = str(fd, "pack");
@@ -84,6 +85,7 @@ export async function confirmDevPayment(purchaseId: string) {
 }
 
 export async function subscribePro() {
+  if (!PAID_FEATURES) redirect("/");
   const user = await requireUser("/pro");
   const url = await runOrBack("/pro", () => startProCheckout(user.id));
   redirect(url);

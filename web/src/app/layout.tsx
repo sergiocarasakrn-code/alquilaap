@@ -1,6 +1,7 @@
 import type { Metadata, Viewport } from "next";
 import Link from "next/link";
 import { currentUser, isProUser } from "@/lib/auth";
+import { PAID_FEATURES } from "@/lib/config";
 import { isAdmin } from "@/lib/admin";
 import { unreadCount } from "@/lib/messages";
 import { logout } from "./actions/auth";
@@ -89,7 +90,7 @@ export default async function RootLayout({ children }: { children: React.ReactNo
         <footer className="mt-12 border-t border-line">
           <div className="mx-auto flex max-w-6xl flex-wrap gap-x-6 gap-y-2 px-4 py-6 text-sm text-ink-3">
             <span>© Alquilaap</span>
-            <Link href="/pro">Alquilaap Pro para tiendas</Link>
+            {PAID_FEATURES && <Link href="/pro">Alquilaap Pro para tiendas</Link>}
             <Link href="/como-funciona">Cómo funciona</Link>
             <Link href="/condiciones">Condiciones</Link>
             <Link href="/privacidad">Privacidad</Link>

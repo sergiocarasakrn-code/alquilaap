@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { requireUser, isProUser } from "@/lib/auth";
+import { PAID_FEATURES } from "@/lib/config";
 import { userStats } from "@/lib/listings";
 import { submitKyc } from "@/app/actions/account";
 import { logout } from "@/app/actions/auth";
@@ -87,6 +88,7 @@ export default async function Perfil({ searchParams }: { searchParams: Promise<R
         )}
       </section>
 
+      {PAID_FEATURES && (
       <section className="card space-y-2 p-5">
         <h2 className="h2">Alquilaap Pro</h2>
         {pro ? (
@@ -103,6 +105,7 @@ export default async function Perfil({ searchParams }: { searchParams: Promise<R
           </>
         )}
       </section>
+      )}
 
       <div className="flex flex-wrap items-center justify-between gap-3">
         <form action={logout}>

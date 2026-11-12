@@ -49,7 +49,7 @@ La app de Android abre la web de Alquilaap a pantalla completa (Trusted Web Acti
 >
 > Bicicletas, patinetes, herramientas, camping, esquí, kayak, cámaras, consolas, material para fiestas, cosas para bebés y mucho más.
 >
-> ¿Tienes una tienda de alquiler? Con Alquilaap Pro tus anuncios salen primero y las reservas se aceptan al momento.
+> Totalmente gratis: sin comisiones, sin suscripciones y sin pagos dentro de la app.
 
 ## Formulario «Seguridad de los datos» (resumen)
 
@@ -60,6 +60,7 @@ La app de Android abre la web de Alquilaap a pantalla completa (Trusted Web Acti
 | Ubicación aproximada | Sí, opcional | No | Mostrar anuncios cercanos |
 | Fotos de anuncios | Sí | No | Funcionalidad de la app |
 | Mensajes en la app | Sí | No | Funcionalidad de la app |
-| Historial de compras (packs, suscripción) | Sí | No | Pagos, gestionados por Stripe |
+
+Mientras `PAID_FEATURES` esté desactivado la app no tiene pagos: en Play Console marca que **no** tiene compras en la aplicación. Si se activan los packs o Pro, añade aquí «Historial de compras» (Stripe).
 
 Datos cifrados en tránsito: **sí**. Los usuarios pueden pedir que se eliminen sus datos: **sí**.

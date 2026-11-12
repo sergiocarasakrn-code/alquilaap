@@ -3,7 +3,7 @@ import { redirect } from "next/navigation";
 import { revalidatePath } from "next/cache";
 import { db } from "@/lib/db";
 import { requireUser, isProUser } from "@/lib/auth";
-import { CITIES, FREE_LISTING_LIMIT, isCategory, isCity, isSubcategory } from "@/lib/config";
+import { CITIES, FREE_LISTING_LIMIT, PAID_FEATURES, isCategory, isCity, isSubcategory } from "@/lib/config";
 import { parseEuros } from "@/lib/format";
 import { saveImage } from "@/lib/storage";
 import { fuzz, inSpain } from "@/lib/places";
@@ -43,7 +43,7 @@ export async function createListing(fd: FormData) {
     const photos = photosOf(fd);
     if (photos.length === 0) throw new UserError("Añade al menos una foto");
     if (photos.length > MAX_PHOTOS) throw new UserError(`Máximo ${MAX_PHOTOS} fotos`);
-    if (!isProUser(user)) {
+    if (PAID_FEATURES && !isProUser(user)) {
       const active = await db.listing.count({ where: { ownerId: user.id, status: "active" } });
       if (active >= FREE_LISTING_LIMIT) throw new UserError(`Con la cuenta gratuita puedes tener ${FREE_LISTING_LIMIT} anuncios activos. Pasa a Pro para tener ilimitados.`);
     }
