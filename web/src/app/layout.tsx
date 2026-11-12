@@ -16,6 +16,9 @@ export const metadata: Metadata = {
   metadataBase: new URL(process.env.APP_URL ?? "http://localhost:3000"),
   title: { default: "Alquilaap · Alquila lo que necesitas, cerca de ti", template: "%s · Alquilaap" },
   description: "Alquila bicis, herramientas, material de camping y mucho más a particulares y tiendas. Publicar es gratis.",
+  applicationName: "Alquilaap",
+  appleWebApp: { capable: true, title: "Alquilaap", statusBarStyle: "default" },
+  icons: { apple: "/icons/apple-touch-icon.png" },
 };
 export const viewport: Viewport = { themeColor: "#0f6b5c", width: "device-width", initialScale: 1 };
 
@@ -86,6 +89,8 @@ export default async function RootLayout({ children }: { children: React.ReactNo
             <span>© Alquilaap</span>
             <Link href="/pro">Alquilaap Pro para tiendas</Link>
             <Link href="/como-funciona">Cómo funciona</Link>
+            <Link href="/condiciones">Condiciones</Link>
+            <Link href="/privacidad">Privacidad</Link>
             <span>Publicar y alquilar es gratis. El alquiler se paga en mano.</span>
           </div>
         </footer>

@@ -2,15 +2,16 @@ import Link from "next/link";
 import { CATEGORIES } from "@/lib/config";
 import { ZoneFields } from "@/components/ZoneFields";
 import { featuredListings, recentListings } from "@/lib/listings";
-import { ListingGrid } from "@/components/ui";
+import { ListingGrid, Notice, first } from "@/components/ui";
 import { CategoryIcon } from "@/components/CategoryIcon";
 
 export const dynamic = "force-dynamic";
 
-export default async function Home() {
-  const [featured, recent] = await Promise.all([featuredListings(8), recentListings(12)]);
+export default async function Home({ searchParams }: { searchParams: Promise<Record<string, string | string[] | undefined>> }) {
+  const [featured, recent, sp] = await Promise.all([featuredListings(8), recentListings(12), searchParams]);
   return (
     <div className="space-y-10">
+      {first(sp.cuenta) === "borrada" && <Notice ok="Tu cuenta se ha borrado. Gracias por haber usado Alquilaap." />}
       <section className="card overflow-hidden bg-brand-soft p-6 sm:p-10">
         <h1 className="h1 max-w-2xl">Alquila lo que necesitas a gente de tu ciudad</h1>
         <p className="mt-3 max-w-xl text-ink-2">Bicis, herramientas, camping, cámaras y mucho más. Publicar y alquilar es gratis, y el alquiler se paga en mano.</p>

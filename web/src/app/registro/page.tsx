@@ -28,7 +28,17 @@ export default async function Registro({ searchParams }: { searchParams: Promise
         </label>
         <label className="flex items-start gap-2 text-sm text-ink-2">
           <input type="checkbox" name="terms" required className="mt-0.5" />
-          <span>Acepto las condiciones de uso y la política de privacidad.</span>
+          <span>
+            Acepto las{" "}
+            <Link href="/condiciones" target="_blank" className="font-semibold text-brand">
+              condiciones de uso
+            </Link>{" "}
+            y la{" "}
+            <Link href="/privacidad" target="_blank" className="font-semibold text-brand">
+              política de privacidad
+            </Link>
+            .
+          </span>
         </label>
         <button className="btn-primary w-full">Crear cuenta gratis</button>
       </form>
