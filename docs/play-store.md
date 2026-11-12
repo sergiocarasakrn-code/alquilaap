@@ -33,7 +33,7 @@ La app de Android abre la web de Alquilaap a pantalla completa (Trusted Web Acti
 - **Categoría:** Compras.
 - **Política de privacidad:** `https://alquilaap.es/privacidad`
 - **Eliminación de cuenta:** `https://alquilaap.es/borrar-cuenta` (y dentro de la app, en Perfil → Borrar mi cuenta).
-- **Iconos:** `web/public/icons/icon-512.png`. Gráfico destacado de 1024×500 y al menos 2 capturas de móvil.
+- **Icono (512×512) y gráfico destacado (1024×500):** en la carpeta del logo del proyecto (`icono-app-512.png` y `grafico-play-store-1024x500.png`). Además, al menos 2 capturas de móvil.
 
 **Descripción completa (borrador):**
 
