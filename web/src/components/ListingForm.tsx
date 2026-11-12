@@ -56,7 +56,7 @@ export function ListingForm({ action, d = {}, submit, photosRequired }: { action
       </label>
       <div className="sm:col-span-2">
         <button className="btn-primary w-full sm:w-auto">{submit}</button>
-        <p className="mt-2 text-xs text-ink-3">Publicar es gratis. Puedes destacarlo después para que lo vean más personas.</p>
+        <p className="mt-2 text-xs text-ink-3">Publicar es gratis.</p>
       </div>
     </form>
   );

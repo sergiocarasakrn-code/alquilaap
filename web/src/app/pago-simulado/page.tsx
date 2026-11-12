@@ -2,13 +2,13 @@ import { notFound } from "next/navigation";
 import { db } from "@/lib/db";
 import { requireUser } from "@/lib/auth";
 import { devPaymentsAllowed } from "@/lib/stripe";
-import { PACKS, type PackCode } from "@/lib/config";
+import { PACKS, PAID_FEATURES, type PackCode } from "@/lib/config";
 import { money } from "@/lib/format";
 import { confirmDevPayment } from "@/app/actions/account";
 
 // Solo en desarrollo y sin claves de Stripe: sustituye a la pantalla de pago de Stripe.
 export default async function PagoSimulado({ searchParams }: { searchParams: Promise<{ compra?: string }> }) {
-  if (!devPaymentsAllowed()) notFound();
+  if (!PAID_FEATURES || !devPaymentsAllowed()) notFound();
   const { compra } = await searchParams;
   const user = await requireUser("/mis-anuncios");
   const p = compra ? await db.packPurchase.findUnique({ where: { id: compra }, include: { listing: true } }) : null;

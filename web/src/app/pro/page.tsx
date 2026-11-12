@@ -1,5 +1,6 @@
 import { currentUser, isProUser } from "@/lib/auth";
-import { PRO_PLAN } from "@/lib/config";
+import { notFound } from "next/navigation";
+import { PAID_FEATURES, PRO_PLAN } from "@/lib/config";
 import { money } from "@/lib/format";
 import { subscribePro } from "@/app/actions/account";
 import { Notice } from "@/components/ui";
@@ -7,6 +8,7 @@ import { Notice } from "@/components/ui";
 export const metadata = { title: "Alquilaap Pro para tiendas" };
 
 export default async function Pro({ searchParams }: { searchParams: Promise<{ error?: string }> }) {
+  if (!PAID_FEATURES) notFound();
   const user = await currentUser();
   const { error } = await searchParams;
   const active = user ? isProUser(user) : false;

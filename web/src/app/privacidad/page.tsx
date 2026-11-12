@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { LEGAL } from "@/lib/legal";
+import { PAID_FEATURES } from "@/lib/config";
 import { LegalPage } from "@/components/Legal";
 
 export const metadata = { title: "Política de privacidad", description: "Qué datos trata Alquilaap, para qué y cómo ejercer tus derechos." };
@@ -42,9 +43,11 @@ export default function Privacidad() {
         <li>
           <strong>Reservas, mensajes y reseñas</strong> entre usuarios, y las incidencias que se abran.
         </li>
-        <li>
-          <strong>Pagos de packs y de Alquilaap Pro:</strong> los gestiona Stripe. No vemos ni guardamos los datos de tu tarjeta.
-        </li>
+        {PAID_FEATURES && (
+          <li>
+            <strong>Pagos de packs y de Alquilaap Pro:</strong> los gestiona Stripe. No vemos ni guardamos los datos de tu tarjeta.
+          </li>
+        )}
         <li>
           <strong>Datos técnicos:</strong> una cookie de sesión para que no tengas que entrar cada vez. No usamos cookies de publicidad ni de seguimiento.
         </li>
@@ -58,9 +61,11 @@ export default function Privacidad() {
         <li>
           <strong>Verificar tu identidad y prevenir robos y fraudes:</strong> interés legítimo de Alquilaap y de los usuarios en alquilar con seguridad.
         </li>
-        <li>
-          <strong>Cobrar los packs y la suscripción y llevar la contabilidad:</strong> ejecución del contrato y obligaciones legales.
-        </li>
+        {PAID_FEATURES && (
+          <li>
+            <strong>Cobrar los packs y la suscripción y llevar la contabilidad:</strong> ejecución del contrato y obligaciones legales.
+          </li>
+        )}
         <li>
           <strong>Atender incidencias y requerimientos de las autoridades:</strong> interés legítimo y obligación legal.
         </li>
@@ -78,7 +83,7 @@ export default function Privacidad() {
       <ul>
         <li>Railway (alojamiento de la web y la base de datos).</li>
         <li>Cloudflare (almacenamiento privado de fotos y documentos).</li>
-        <li>Stripe (pagos y, cuando se active, verificación de identidad).</li>
+        <li>{PAID_FEATURES ? "Stripe (pagos y, cuando se active, verificación de identidad)." : "Stripe (cuando se active, verificación de identidad)."}</li>
         <li>Resend (envío de emails de aviso).</li>
       </ul>
       <p>
@@ -95,7 +100,7 @@ export default function Privacidad() {
           conserva sin tu nombre, porque también pertenece a la otra persona.
         </li>
         <li>Si tuviste alguna incidencia, guardamos la huella cifrada de tu DNI hasta 5 años, solo para prevenir fraudes.</li>
-        <li>Las facturas de los packs y de la suscripción se guardan el tiempo que exige la ley fiscal.</li>
+        {PAID_FEATURES && <li>Las facturas de los packs y de la suscripción se guardan el tiempo que exige la ley fiscal.</li>}
       </ul>
 
       <h2 className="h2">7. Tus derechos</h2>

@@ -1,6 +1,6 @@
 import Link from "next/link";
 import { LEGAL } from "@/lib/legal";
-import { PACKS, PRO_PLAN } from "@/lib/config";
+import { PACKS, PAID_FEATURES, PRO_PLAN } from "@/lib/config";
 import { money } from "@/lib/format";
 import { LegalPage } from "@/components/Legal";
 
@@ -47,6 +47,8 @@ export default function Condiciones() {
         <li>Podemos retirar anuncios o cuentas que incumplan estas normas o que reciban denuncias fundadas.</li>
       </ul>
 
+      {PAID_FEATURES ? (
+        <>
       <h2 className="h2">4. Servicios de pago</h2>
       <ul>
         <li>
@@ -58,6 +60,16 @@ export default function Condiciones() {
         </li>
         <li>Los precios incluyen IVA. Los pagos los procesa Stripe.</li>
       </ul>
+        </>
+      ) : (
+        <>
+          <h2 className="h2">4. Precio</h2>
+          <p>
+            Alquilaap es gratis: no cobramos por registrarte, publicar, escribir ni alquilar, y no nos quedamos ninguna comisión. Si algún día añadimos servicios de
+            pago, serán opcionales y te avisaremos antes.
+          </p>
+        </>
+      )}
 
       <h2 className="h2">5. Conducta</h2>
       <ul>

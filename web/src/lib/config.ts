@@ -1,6 +1,10 @@
 // Reglas de negocio de Alquilaap en un solo sitio.
 // Publicar y alquilar es gratis: Alquilaap no cobra comisión ni retiene el pago del alquiler.
 
+// Por ahora Alquilaap es 100 % gratis: sin packs de destacados ni Alquilaap Pro. El código de pagos se conserva
+// para más adelante; se vuelve a activar poniendo PAID_FEATURES=on en las variables del servidor.
+export const PAID_FEATURES = process.env.PAID_FEATURES === "on";
+
 export type PackCode = "basico" | "pro" | "premium";
 
 export const PACKS: Record<PackCode, { code: PackCode; name: string; priceCents: number; hours: number; rank: number; perks: string[]; popular?: boolean }> = {
