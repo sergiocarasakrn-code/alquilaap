@@ -61,9 +61,15 @@ describe.skipIf(!enabled)("reservas en base de datos", () => {
     await expect(createBooking(other.id, { listingId: listing.id, start: day(21), end: day(21), insurance: false })).rejects.toThrow(/reservadas/);
   });
 
-  it("no se puede reservar sin verificar ni el propio anuncio", async () => {
+  it("la verificación es opcional, salvo que el anuncio la exija; nadie reserva su propio anuncio", async () => {
     const u = await db.user.create({ data: { email: `nokyc-${tag}@test.es`, name: "x", passwordHash: "x" } });
-    await expect(createBooking(u.id, { listingId: listing.id, start: day(40), end: day(41), insurance: false })).rejects.toThrow(/Verifica/);
+    const b = await createBooking(u.id, { listingId: listing.id, start: day(40), end: day(41), insurance: false });
+    expect(b.status).toBe("requested");
+    const strict = await db.listing.create({
+      data: { ownerId: owner.id, title: `Estricto ${tag}`, description: "Solo verificados", category: "bicis", city: "Valencia", citySlug: "valencia", pricePerDayCents: 1000, verifiedOnly: true },
+    });
+    await expect(createBooking(u.id, { listingId: strict.id, start: day(40), end: day(41), insurance: false })).rejects.toThrow(/verificad/);
+    expect((await createBooking(renter.id, { listingId: strict.id, start: day(40), end: day(41), insurance: false })).status).toBe("requested");
     await expect(createBooking(owner.id, { listingId: listing.id, start: day(40), end: day(41), insurance: false })).rejects.toThrow(/propio/);
   });
 

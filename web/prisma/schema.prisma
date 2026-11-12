@@ -98,6 +98,7 @@ model Listing {
   lng             Float?
   pricePerDayCents Int
   depositCents    Int           @default(0)
+  verifiedOnly    Boolean       @default(false) // el propietario solo acepta reservas de usuarios verificados
   status          ListingStatus @default(active)
   createdAt       DateTime      @default(now())
   updatedAt       DateTime      @updatedAt

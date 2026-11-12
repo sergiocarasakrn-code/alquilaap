@@ -13,16 +13,18 @@ export default async function Publicar({ searchParams }: { searchParams: Promise
     <div className="mx-auto max-w-2xl space-y-4">
       <h1 className="h1">Publica un objeto</h1>
       <Notice error={error} />
-      {user.kycStatus !== "verified" ? (
-        <div className="card space-y-3 p-5">
-          <p>Para evitar robos, todas las personas que publican tienen la identidad verificada. Solo se hace una vez.</p>
-          <Link href="/perfil#verificacion" className="btn-primary">
-            Verificar mi identidad
+      {user.kycStatus !== "verified" && (
+        <div className="card flex flex-wrap items-center gap-3 border-ok/30 bg-ok-soft p-4 text-sm">
+          <p className="min-w-0 flex-1">
+            <span className="font-semibold">Consejo:</span> los anuncios de personas con la identidad verificada llevan el sello «✓ Verificado» y reciben más
+            reservas. Es opcional y solo se hace una vez.
+          </p>
+          <Link href="/perfil#verificacion" className="btn-ghost">
+            Verificarme
           </Link>
         </div>
-      ) : (
-        <ListingForm action={createListing} submit="Publicar gratis" photosRequired />
       )}
+      <ListingForm action={createListing} submit="Publicar gratis" photosRequired />
     </div>
   );
 }

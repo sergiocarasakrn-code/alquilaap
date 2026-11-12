@@ -41,7 +41,7 @@ La app de Android abre la web de Alquilaap a pantalla completa (Trusted Web Acti
 >
 > • Publicar y alquilar es gratis, sin comisiones.
 > • Busca por categoría, ciudad o distancia: «cerca de mí».
-> • Todos los usuarios verifican su identidad con DNI o NIE.
+> • Sello «Verificado» para quien confirma su identidad con DNI o NIE, y anuncios solo para usuarios verificados.
 > • Chatea con el propietario antes de reservar.
 > • Doble confirmación al entregar y al devolver.
 > • Seguro opcional contra daños y robo.

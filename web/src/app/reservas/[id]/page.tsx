@@ -28,8 +28,8 @@ export default async function Reserva({ params, searchParams }: { params: Promis
     where: { id },
     include: {
       listing: { include: { photos: { take: 1, orderBy: { position: "asc" } } } },
-      owner: { select: { id: true, name: true, phone: true } },
-      renter: { select: { id: true, name: true, phone: true } },
+      owner: { select: { id: true, name: true, phone: true, kycStatus: true } },
+      renter: { select: { id: true, name: true, phone: true, kycStatus: true } },
       reviews: true,
     },
   });
@@ -70,6 +70,11 @@ export default async function Reserva({ params, searchParams }: { params: Promis
           <p className="text-sm text-ink-2">
             {role === "owner" ? "Lo alquila" : "Propietario"}: {other.name}
             {showPhone && other.phone ? ` · ${other.phone}` : ""}
+            {other.kycStatus === "verified" ? (
+              <span className="ml-1.5 text-xs font-semibold text-ok">✓ Verificado</span>
+            ) : (
+              <span className="ml-1.5 text-xs text-ink-3">· Sin verificar</span>
+            )}
           </p>
         </div>
         <StatusPill s={status} />

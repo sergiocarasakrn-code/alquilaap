@@ -15,12 +15,12 @@ export default async function Perfil({ searchParams }: { searchParams: Promise<R
   const pro = isProUser(user);
   const ok = first(sp.verificado)
     ? user.kycStatus === "verified"
-      ? "Identidad verificada. Ya puedes publicar y reservar."
+      ? "Identidad verificada. Ya tienes el sello «✓ Verificado»."
       : "Hemos recibido tus datos. Te avisaremos cuando estén verificados."
     : first(sp.pro)
       ? "¡Bienvenido a Alquilaap Pro!"
       : first(sp.bienvenida)
-        ? "Cuenta creada. Verifica tu identidad para empezar a publicar y reservar."
+        ? "Cuenta creada. Ya puedes publicar, reservar y escribir mensajes. Si verificas tu identidad (opcional), tendrás el sello «✓ Verificado» y te reservarán más."
         : undefined;
 
   return (
@@ -35,7 +35,7 @@ export default async function Perfil({ searchParams }: { searchParams: Promise<R
       </div>
 
       <section id="verificacion" className="card space-y-3 p-5">
-        <h2 className="h2">Verificación de identidad</h2>
+        <h2 className="h2">Verificación de identidad <span className="text-sm font-medium text-ink-3">(opcional)</span></h2>
         {user.kycStatus === "verified" && (
           <p className="text-ink-2">
             ✓ Verificada{user.kycVerifiedAt ? ` el ${shortDate(user.kycVerifiedAt)}` : ""}. Documento terminado en {user.idNumberLast4}.
@@ -45,8 +45,9 @@ export default async function Perfil({ searchParams }: { searchParams: Promise<R
         {(user.kycStatus === "unverified" || user.kycStatus === "rejected") && (
           <>
             <p className="text-sm text-ink-2">
-              Para evitar robos, pedimos estos datos a todas las personas que publican o alquilan. No se muestran a nadie: el otro usuario solo ve el sello «Identidad
-              verificada». No guardamos tu número de documento en claro.
+              Es opcional, pero da mucha más confianza: tus anuncios y tu perfil llevarán el sello «✓ Verificado», podrás reservar en los anuncios que
+              solo aceptan usuarios verificados y las tiendas Pro te aceptarán al momento. Tus datos no se muestran a nadie y no guardamos tu número de
+              documento en claro.
             </p>
             {user.kycStatus === "rejected" && <p className="text-sm font-medium text-bad">No pudimos verificar tus datos. Revísalos y vuelve a enviarlos.</p>}
             <form action={submitKyc} className="grid gap-3 sm:grid-cols-2">
