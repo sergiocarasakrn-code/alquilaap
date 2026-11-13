@@ -74,11 +74,11 @@ export default async function Perfil({ searchParams }: { searchParams: Promise<R
               </label>
               <label>
                 <span className="label">Foto del documento</span>
-                <input name="document" type="file" accept="image/jpeg,image/png,image/webp" required className="input" />
+                <input name="document" type="file" accept="image/jpeg,image/png,image/webp,image/heic,image/heif,.heic,.heif" required className="input" />
               </label>
               <label>
                 <span className="label">Selfie</span>
-                <input name="selfie" type="file" accept="image/jpeg,image/png,image/webp" capture="user" required className="input" />
+                <input name="selfie" type="file" accept="image/jpeg,image/png,image/webp,image/heic,image/heif,.heic,.heif" capture="user" required className="input" />
               </label>
               <div className="sm:col-span-2">
                 <button className="btn-primary">Enviar y verificar</button>

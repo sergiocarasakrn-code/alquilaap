@@ -45,7 +45,7 @@ export function ListingForm({ action, d = {}, submit, photosRequired }: { action
       </label>
       <label className="sm:col-span-2">
         <span className="label">Fotos {photosRequired ? "(al menos una, máx. 8)" : "(añadir más)"}</span>
-        <input name="photos" type="file" accept="image/jpeg,image/png,image/webp" multiple required={photosRequired} className="input" />
+        <input name="photos" type="file" accept="image/jpeg,image/png,image/webp,image/heic,image/heif,.heic,.heif" multiple required={photosRequired} className="input" />
       </label>
       <label className="flex items-start gap-2 rounded-xl bg-surface-2 p-3 text-sm sm:col-span-2">
         <input type="checkbox" name="verifiedOnly" defaultChecked={d.verifiedOnly} className="mt-0.5" />
