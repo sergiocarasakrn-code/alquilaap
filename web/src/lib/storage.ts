@@ -29,10 +29,15 @@ export function endpointOrigin(raw: string) {
   }
 }
 function bucket() {
-  const { S3_ENDPOINT, S3_ACCESS_KEY_ID, S3_SECRET_ACCESS_KEY, S3_BUCKET } = process.env;
+  // Se limpian espacios, saltos de línea y comillas que se cuelan al copiar y pegar las claves.
+  const clean = (v: string | undefined) => v?.trim().replace(/^["']|["']$/g, "").trim() || undefined;
+  const S3_ENDPOINT = clean(process.env.S3_ENDPOINT);
+  const S3_ACCESS_KEY_ID = clean(process.env.S3_ACCESS_KEY_ID);
+  const S3_SECRET_ACCESS_KEY = clean(process.env.S3_SECRET_ACCESS_KEY);
+  const S3_BUCKET = clean(process.env.S3_BUCKET);
   if (!S3_BUCKET || !S3_ACCESS_KEY_ID || !S3_SECRET_ACCESS_KEY) return null;
   s3 ??= new S3Client({
-    region: process.env.S3_REGION ?? "auto",
+    region: clean(process.env.S3_REGION) ?? "auto",
     // Cloudflare muestra el endpoint con el nombre del bucket al final (…/alquilaap): nos quedamos solo con el dominio.
     endpoint: S3_ENDPOINT ? endpointOrigin(S3_ENDPOINT) : undefined,
     credentials: { accessKeyId: S3_ACCESS_KEY_ID, secretAccessKey: S3_SECRET_ACCESS_KEY },
