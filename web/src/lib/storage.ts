@@ -19,12 +19,22 @@ const KEY_RE = /^(listings|kyc)\/[0-9a-f-]{36}\.(jpg|png|webp)$/;
 export const isValidKey = (key: string) => KEY_RE.test(key);
 
 let s3: S3Client | null = null;
+
+export function endpointOrigin(raw: string) {
+  const v = raw.trim();
+  try {
+    return new URL(/^https?:\/\//.test(v) ? v : `https://${v}`).origin;
+  } catch {
+    return v;
+  }
+}
 function bucket() {
   const { S3_ENDPOINT, S3_ACCESS_KEY_ID, S3_SECRET_ACCESS_KEY, S3_BUCKET } = process.env;
   if (!S3_BUCKET || !S3_ACCESS_KEY_ID || !S3_SECRET_ACCESS_KEY) return null;
   s3 ??= new S3Client({
     region: process.env.S3_REGION ?? "auto",
-    endpoint: S3_ENDPOINT || undefined,
+    // Cloudflare muestra el endpoint con el nombre del bucket al final (…/alquilaap): nos quedamos solo con el dominio.
+    endpoint: S3_ENDPOINT ? endpointOrigin(S3_ENDPOINT) : undefined,
     credentials: { accessKeyId: S3_ACCESS_KEY_ID, secretAccessKey: S3_SECRET_ACCESS_KEY },
     // Cloudflare R2 no admite todas las sumas de control que el SDK añade por defecto.
     requestChecksumCalculation: "WHEN_REQUIRED",
@@ -43,7 +53,14 @@ export async function saveImage(file: File, folder: "listings" | "kyc"): Promise
   const body = Buffer.from(await file.arrayBuffer());
   const b = bucket();
   if (b) {
-    await b.client.send(new PutObjectCommand({ Bucket: b.name, Key: key, Body: body, ContentType: file.type }));
+    try {
+      await b.client.send(new PutObjectCommand({ Bucket: b.name, Key: key, Body: body, ContentType: file.type }));
+    } catch (e) {
+      // El detalle (credenciales, endpoint, bucket…) va al log del servidor; al usuario, un aviso claro.
+      const err = e as { name?: string; message?: string; $metadata?: { httpStatusCode?: number } };
+      console.error(`[storage] No se pudo subir ${key} a ${b.name}: ${err.name ?? "Error"} (HTTP ${err.$metadata?.httpStatusCode ?? "?"}) ${err.message ?? ""}`);
+      throw new StorageError("No hemos podido subir la foto. Inténtalo de nuevo en unos minutos.");
+    }
   } else {
     if (process.env.NODE_ENV === "production" && !process.env.ALLOW_LOCAL_STORAGE)
       throw new Error("Falta configurar S3_* para guardar archivos en producción");
