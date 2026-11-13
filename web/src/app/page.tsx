@@ -39,6 +39,16 @@ export default async function Home({ searchParams }: { searchParams: Promise<Rec
         </div>
       </section>
 
+      <section className="card flex flex-col gap-4 bg-tag-soft p-6 sm:flex-row sm:items-center sm:justify-between">
+        <div>
+          <h2 className="h2">Gana dinero alquilando</h2>
+          <p className="mt-1 max-w-xl text-ink-2">Alquila lo que no usas, o compra para alquilar y amortízalo en pocos meses. Sin comisiones.</p>
+        </div>
+        <Link href="/gana-dinero" className="btn-primary shrink-0">
+          Calcula cuánto puedes ganar
+        </Link>
+      </section>
+
       {featured.length > 0 && (
         <section>
           <h2 className="h2 mb-3">Destacados</h2>

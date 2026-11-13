@@ -92,6 +92,7 @@ export default async function RootLayout({ children }: { children: React.ReactNo
             <span>© Alquilaap</span>
             {PAID_FEATURES && <Link href="/pro">Alquilaap Pro para tiendas</Link>}
             <Link href="/como-funciona">Cómo funciona</Link>
+            <Link href="/gana-dinero">Gana dinero alquilando</Link>
             <Link href="/condiciones">Condiciones</Link>
             <Link href="/privacidad">Privacidad</Link>
             <span>Publicar y alquilar es gratis. El alquiler se paga en mano.</span>
