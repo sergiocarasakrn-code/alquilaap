@@ -4,6 +4,7 @@ import { randomUUID } from "node:crypto";
 import path from "node:path";
 import { DeleteObjectCommand, GetObjectCommand, PutObjectCommand, S3Client } from "@aws-sdk/client-s3";
 import { UserError } from "./errors";
+import { ImageError, prepareImage } from "./images";
 
 // Fotos y documentos:
 // - En producción, en un bucket privado de Cloudflare R2 (o cualquier S3). Variables S3_*.
@@ -11,8 +12,9 @@ import { UserError } from "./errors";
 // Nada se sirve directamente desde el bucket: las fotos de anuncios pasan por /media/... y los
 // documentos de identidad solo los ve un administrador.
 
-const MAX = 8 * 1024 * 1024;
-const TYPES: Record<string, string> = { "image/jpeg": "jpg", "image/png": "png", "image/webp": "webp" };
+// Archivo original máximo; después se reduce (ver images.ts).
+const MAX = 20 * 1024 * 1024;
+const ACCEPTED = new Set(["image/jpeg", "image/png", "image/webp", "image/heic", "image/heif"]);
 const EXT_TYPE: Record<string, string> = { jpg: "image/jpeg", png: "image/png", webp: "image/webp" };
 const KEY_RE = /^(listings|kyc)\/[0-9a-f-]{36}\.(jpg|png|webp)$/;
 
@@ -51,15 +53,22 @@ function bucket() {
 const localPath = (key: string) => path.join(process.cwd(), "storage-data", key);
 
 export async function saveImage(file: File, folder: "listings" | "kyc"): Promise<string> {
-  const ext = TYPES[file.type];
-  if (!ext) throw new StorageError("Formato de imagen no permitido (usa JPG, PNG o WebP)");
-  if (file.size > MAX) throw new StorageError("La imagen supera 8 MB");
+  const heicByName = /\.(heic|heif)$/i.test(file.name);
+  if (!ACCEPTED.has(file.type) && !heicByName) throw new StorageError("Formato de imagen no permitido (usa JPG, PNG, WebP o HEIC)");
+  if (file.size > MAX) throw new StorageError(`La imagen supera ${MAX / 1024 / 1024} MB`);
+  let prepared;
+  try {
+    prepared = await prepareImage(Buffer.from(await file.arrayBuffer()), folder === "kyc" ? 2400 : 1920);
+  } catch (e) {
+    if (e instanceof ImageError) throw new StorageError(e.message);
+    throw e;
+  }
+  const { body, type: contentType, ext } = prepared;
   const key = `${folder}/${randomUUID()}.${ext}`;
-  const body = Buffer.from(await file.arrayBuffer());
   const b = bucket();
   if (b) {
     try {
-      await b.client.send(new PutObjectCommand({ Bucket: b.name, Key: key, Body: body, ContentType: file.type }));
+      await b.client.send(new PutObjectCommand({ Bucket: b.name, Key: key, Body: body, ContentType: contentType }));
     } catch (e) {
       // El detalle (credenciales, endpoint, bucket…) va al log del servidor; al usuario, un aviso claro.
       const err = e as { name?: string; message?: string; $metadata?: { httpStatusCode?: number } };
