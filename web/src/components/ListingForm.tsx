@@ -1,5 +1,6 @@
 import { LocationField } from "./LocationField";
 import { PhotoPicker } from "./PhotoPicker";
+import { SubmitButton } from "./SubmitButton";
 import { PLACES } from "@/lib/localidades";
 import { CategoryPicker } from "./CategoryPicker";
 
@@ -65,7 +66,7 @@ export function ListingForm({ action, d = {}, submit, photosRequired }: { action
         </span>
       </label>
       <div className="sm:col-span-2">
-        <button className="btn-primary w-full sm:w-auto">{submit}</button>
+        <SubmitButton pending="Subiendo fotos, no cierres la página…">{submit}</SubmitButton>
         <p className="mt-2 text-xs text-ink-3">Publicar es gratis.</p>
       </div>
     </form>
