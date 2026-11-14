@@ -43,7 +43,7 @@ export default async function Buscar({ searchParams }: { searchParams: SP }) {
         <input name="q" defaultValue={q} className="input sm:min-w-56 sm:flex-1" placeholder="¿Qué necesitas alquilar?" aria-label="Buscar" />
         {cat && <input type="hidden" name="cat" value={cat} />}
         {sub && <input type="hidden" name="sub" value={sub} />}
-        <ZoneFields zone={zone.value} km={zone.km} mine={zone.mine ? zone.center : undefined} />
+        <ZoneFields zone={zone.value} zoneName={zone.name} km={zone.km} mine={zone.mine ? zone.center : undefined} />
         <button className="btn-primary">Buscar</button>
       </form>
       <CategoryChips active={isCategory(cat) ? cat : undefined} activeSub={sub} zone={zoneObj} />

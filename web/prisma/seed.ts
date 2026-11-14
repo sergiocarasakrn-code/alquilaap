@@ -3,7 +3,8 @@ import { PrismaClient } from "@prisma/client";
 import { writeFileSync, mkdirSync } from "node:fs";
 import path from "node:path";
 import { hashPassword } from "../src/lib/password";
-import { CITIES, categoryName } from "../src/lib/config";
+import { categoryName } from "../src/lib/config";
+import { PLACES } from "../src/lib/localidades";
 
 const db = new PrismaClient();
 const PASSWORD = "alquilaap123";
@@ -55,7 +56,7 @@ async function main() {
   for (const [i, l] of LISTINGS.entries()) {
     const owner = users[l.owner];
     if (await db.listing.findFirst({ where: { ownerId: owner.id, title: l.title } })) continue;
-    const c = CITIES[l.city];
+    const c = PLACES[l.city];
     const listing = await db.listing.create({
       data: {
         ownerId: owner.id,

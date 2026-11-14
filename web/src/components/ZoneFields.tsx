@@ -1,11 +1,12 @@
 "use client";
 import { useRef, useState } from "react";
-import { DISTANCES, groupedPlaces } from "@/lib/places";
-
-const GROUPS = groupedPlaces();
+import { DISTANCES } from "@/lib/places";
+import { PlaceSearch } from "./PlaceSearch";
 
 interface Props {
   zone?: string;
+  /** Nombre de la zona elegida («Chilches / Xilxes», «Provincia de Castellón»…). */
+  zoneName?: string;
   km?: number;
   mine?: { lat: number; lng: number };
   /** Muestra el selector de distancia (en la portada solo se elige la zona). */
@@ -13,10 +14,10 @@ interface Props {
 }
 
 /**
- * Campos de ubicación para un formulario GET de búsqueda: zona (comunidad, provincia o localidad),
+ * Campos de ubicación para un formulario GET de búsqueda: zona (comunidad, provincia o cualquier pueblo; vacío = toda España),
  * distancia y «Cerca de mí» (usa la ubicación del navegador, redondeada a ~1 km).
  */
-export function ZoneFields({ zone = "", km, mine, withDistance = true }: Props) {
+export function ZoneFields({ zone = "", zoneName = "", km, mine, withDistance = true }: Props) {
   const latRef = useRef<HTMLInputElement>(null);
   const lngRef = useRef<HTMLInputElement>(null);
   const [usingMine, setUsingMine] = useState(!!mine);
@@ -57,25 +58,7 @@ export function ZoneFields({ zone = "", km, mine, withDistance = true }: Props) 
           </button>
         </span>
       ) : (
-        <select name="zona" defaultValue={zone} className="input sm:w-56" aria-label="Zona">
-          <option value="">Toda España</option>
-          {GROUPS.map((g) => (
-            <optgroup key={g.slug} label={g.name}>
-              <option value={`c:${g.slug}`}>{g.name}: todas las zonas</option>
-              {g.provinces.length > 1 &&
-                g.provinces.map((p) => (
-                  <option key={p.slug} value={`p:${p.slug}`}>
-                    Provincia de {p.name}
-                  </option>
-                ))}
-              {g.places.map((p) => (
-                <option key={p.slug} value={`l:${p.slug}`}>
-                  {p.name}
-                </option>
-              ))}
-            </optgroup>
-          ))}
-        </select>
+        <PlaceSearch name="zona" withZones defaultValue={zone} defaultLabel={zoneName} placeholder="Toda España" className="sm:w-64" />
       )}
       {withDistance && (
         <select name="km" defaultValue={km ? String(km) : ""} className="input sm:w-36" aria-label="Distancia">

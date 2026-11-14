@@ -127,7 +127,8 @@ describe("formularios", () => {
   });
 });
 
-import { distanceKm, nearestPlace, placesInRegion, PLACES, PROVINCES } from "@/lib/places";
+import { distanceKm, PROVINCES } from "@/lib/places";
+import { nearestPlace, placesInRegion, PLACES, searchPlaces } from "@/lib/localidades";
 import { parseZone } from "@/lib/zone";
 import { CATEGORIES, isSubcategory } from "@/lib/config";
 
@@ -143,6 +144,22 @@ describe("ubicación", () => {
   });
   it("encuentra la localidad más cercana", () => {
     expect(nearestPlace(41.29, 1.98)).toBe("castelldefels");
+    expect(nearestPlace(39.782, -0.188)).toBe("chilches-xilxes");
+  });
+  it("tiene todos los municipios de España", () => {
+    expect(Object.keys(PLACES).length).toBe(8132);
+    expect(PLACES["chilches-xilxes"]).toMatchObject({ name: "Chilches / Xilxes", province: "castellon" });
+    expect(placesInRegion("comunidad-valenciana")).toContain("chilches-xilxes");
+  });
+  it("busca pueblos sin tildes y en cualquiera de sus nombres", () => {
+    expect(searchPlaces("xilxes")[0]).toMatchObject({ value: "l:chilches-xilxes", detail: "Castellón" });
+    expect(searchPlaces("chilch")[0].value).toBe("l:chilches-xilxes");
+    expect(searchPlaces("castello de la")[0].value).toBe("l:castellon");
+    expect(searchPlaces("castello").map((h) => h.value)).toContain("l:castellon");
+    expect(searchPlaces("lhospitalet")[0].value).toBe("l:lhospitalet-de-llobregat");
+    expect(searchPlaces("valencia")[0].value).toBe("l:valencia"); // la ciudad antes que pueblos con «Valencia» en el nombre
+    expect(searchPlaces("castellon", { withZones: true }).map((h) => h.value)).toContain("p:castellon");
+    expect(searchPlaces("x")).toEqual([]);
   });
   it("interpreta la zona de la URL", () => {
     expect(parseZone({ ciudad: "valencia" }).placeSlugs).toEqual(["valencia"]);
