@@ -49,6 +49,12 @@ export async function createListing(fd: FormData) {
       const active = await db.listing.count({ where: { ownerId: user.id, status: "active" } });
       if (active >= FREE_LISTING_LIMIT) throw new UserError(`Con la cuenta gratuita puedes tener ${FREE_LISTING_LIMIT} anuncios activos. Pasa a Pro para tener ilimitados.`);
     }
+    // Mismo anuncio enviado otra vez (doble clic, conexión lenta, «reenviar formulario»): no se duplica.
+    const twin = await db.listing.findFirst({
+      where: { ownerId: user.id, title: data.title, description: data.description, status: { not: "deleted" }, createdAt: { gte: new Date(Date.now() - 30 * 60_000) } },
+      select: { id: true },
+    });
+    if (twin) return twin.id;
     const urls = [];
     for (const f of photos) urls.push(await saveImage(f, "listings"));
     const l = await db.listing.create({ data: { ...data, ownerId: user.id, photos: { create: urls.map((url, position) => ({ url, position })) } } });
