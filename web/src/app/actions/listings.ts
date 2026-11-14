@@ -3,9 +3,10 @@ import { redirect } from "next/navigation";
 import { revalidatePath } from "next/cache";
 import { db } from "@/lib/db";
 import { requireUser, isProUser } from "@/lib/auth";
-import { CITIES, FREE_LISTING_LIMIT, PAID_FEATURES, isCategory, isCity, isSubcategory } from "@/lib/config";
+import { FREE_LISTING_LIMIT, PAID_FEATURES, isCategory, isSubcategory } from "@/lib/config";
+import { PLACES, isPlace } from "@/lib/localidades";
 import { parseEuros } from "@/lib/format";
-import { saveImage } from "@/lib/storage";
+import { deleteStored, saveImage } from "@/lib/storage";
 import { fuzz, inSpain } from "@/lib/places";
 import { grantPendingRewards, onListingPublished } from "@/lib/referrals";
 import { runOrBack, str, UserError } from "./util";
@@ -24,10 +25,10 @@ function readForm(fd: FormData) {
   if (description.length < 20) throw new UserError("Describe el objeto con al menos 20 caracteres");
   if (!isCategory(category)) throw new UserError("Elige una categoría");
   if (subcategory && !isSubcategory(category, subcategory)) throw new UserError("Subcategoría no válida");
-  if (!isCity(citySlug)) throw new UserError("Elige una ciudad");
+  if (!isPlace(citySlug)) throw new UserError("Elige una ciudad");
   if (!price || price < 100 || price > 100_000) throw new UserError("El precio por día debe estar entre 1 € y 1.000 €");
   if (deposit === null || deposit > 500_000) throw new UserError("Fianza no válida");
-  const c = CITIES[citySlug];
+  const c = PLACES[citySlug];
   // Ubicación aproximada del móvil (si la compartió); si no, el centro de la localidad.
   const lat = Number(str(fd, "lat"));
   const lng = Number(str(fd, "lng"));
@@ -66,13 +67,23 @@ export async function updateListing(id: string, fd: FormData) {
     if (!l || l.ownerId !== user.id || l.status === "deleted") throw new UserError("Anuncio no encontrado");
     const data = readForm(fd);
     const photos = photosOf(fd);
-    if (l.photos.length + photos.length > MAX_PHOTOS) throw new UserError(`Máximo ${MAX_PHOTOS} fotos`);
+    const removeIds = new Set(fd.getAll("removePhoto").map(String));
+    const kept = l.photos.sort((a, b) => a.position - b.position).filter((p) => !removeIds.has(p.id));
+    const removed = l.photos.filter((p) => removeIds.has(p.id));
+    if (kept.length + photos.length === 0) throw new UserError("El anuncio necesita al menos una foto");
+    if (kept.length + photos.length > MAX_PHOTOS) throw new UserError(`Máximo ${MAX_PHOTOS} fotos`);
     const urls = [];
     for (const f of photos) urls.push(await saveImage(f, "listings"));
-    await db.listing.update({
-      where: { id },
-      data: { ...data, photos: { create: urls.map((url, i) => ({ url, position: l.photos.length + i })) } },
-    });
+    await db.$transaction([
+      db.listingPhoto.deleteMany({ where: { listingId: id, id: { in: removed.map((p) => p.id) } } }),
+      // Las que quedan, en orden y sin huecos; las nuevas, detrás.
+      ...kept.map((p, position) => db.listingPhoto.update({ where: { id: p.id }, data: { position } })),
+      db.listing.update({
+        where: { id },
+        data: { ...data, photos: { create: urls.map((url, i) => ({ url, position: kept.length + i })) } },
+      }),
+    ]);
+    for (const p of removed) await deleteStored(p.url).catch((e) => console.error("[fotos] No se pudo borrar", e));
   });
   revalidatePath(`/anuncio/${id}`);
   redirect(`/anuncio/${id}`);

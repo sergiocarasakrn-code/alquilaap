@@ -55,3 +55,7 @@ Los emails de `ADMIN_EMAILS` ven el enlace «Admin» (`/admin`): aprobar o recha
 - Verificación automática con Stripe Identity (ahora se aprueba a mano en `/admin`; en local, `KYC_AUTO_APPROVE`).
 - Emails (bienvenida, nueva reserva) y recuperación de contraseña.
 - Panel de soporte para incidencias y verificaciones.
+
+## Datos de localidades
+
+Los 8.132 municipios (nombre y coordenadas) vienen del Nomenclátor Geográfico de Municipios y Entidades de Población del CNIG (Instituto Geográfico Nacional), licencia CC BY 4.0. Se regeneran con `node web/scripts/build-localidades.mjs MUNICIPIOS.csv`.

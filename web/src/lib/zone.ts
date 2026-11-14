@@ -1,4 +1,5 @@
-import { DISTANCES, PLACES, PROVINCES, REGIONS, fuzz, inSpain, isPlace, isProvince, isRegion, placesInProvince, placesInRegion } from "./places";
+import { DISTANCES, PROVINCES, REGIONS, fuzz, inSpain, isProvince, isRegion } from "./places";
+import { PLACES, isPlace, placesInProvince, placesInRegion } from "./localidades";
 
 // Filtro de ubicación de la búsqueda.
 //  zona = "" (toda España) | "c:<comunidad>" | "p:<provincia>" | "l:<localidad>"   (también se acepta ?ciudad=<localidad>)
@@ -7,6 +8,7 @@ import { DISTANCES, PLACES, PROVINCES, REGIONS, fuzz, inSpain, isPlace, isProvin
 export interface Zone {
   value: string; // valor para el desplegable
   label: string | null;
+  name?: string; // nombre de la zona elegida, para mostrarlo en el buscador
   placeSlugs?: string[]; // anuncios en estas localidades (comunidad o provincia)
   center?: { lat: number; lng: number }; // centro para medir distancias
   km?: number;
@@ -32,11 +34,11 @@ export function parseZone(sp: SP): Zone {
   if (kind === "l" && isPlace(slug)) {
     const p = PLACES[slug];
     return km
-      ? { value: raw, label: `a menos de ${km} km de ${p.name}`, center: { lat: p.lat, lng: p.lng }, km, mine: false, citySlug: slug }
-      : { value: raw, label: p.name, placeSlugs: [slug], center: { lat: p.lat, lng: p.lng }, mine: false, citySlug: slug };
+      ? { value: raw, label: `a menos de ${km} km de ${p.name}`, name: p.name, center: { lat: p.lat, lng: p.lng }, km, mine: false, citySlug: slug }
+      : { value: raw, label: p.name, name: p.name, placeSlugs: [slug], center: { lat: p.lat, lng: p.lng }, mine: false, citySlug: slug };
   }
-  if (kind === "p" && isProvince(slug)) return { value: raw, label: `provincia de ${PROVINCES[slug].name}`, placeSlugs: placesInProvince(slug), mine: false };
-  if (kind === "c" && isRegion(slug)) return { value: raw, label: REGIONS[slug], placeSlugs: placesInRegion(slug), mine: false };
+  if (kind === "p" && isProvince(slug)) return { value: raw, label: `provincia de ${PROVINCES[slug].name}`, name: `Provincia de ${PROVINCES[slug].name}`, placeSlugs: placesInProvince(slug), mine: false };
+  if (kind === "c" && isRegion(slug)) return { value: raw, label: REGIONS[slug], name: REGIONS[slug], placeSlugs: placesInRegion(slug), mine: false };
   return { value: "", label: null, mine: false };
 }
 

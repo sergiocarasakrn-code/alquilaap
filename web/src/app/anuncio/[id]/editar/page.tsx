@@ -10,7 +10,7 @@ export const metadata = { title: "Editar anuncio" };
 export default async function Editar({ params, searchParams }: { params: Promise<{ id: string }>; searchParams: Promise<{ error?: string }> }) {
   const { id } = await params;
   const user = await requireUser(`/anuncio/${id}/editar`);
-  const l = await db.listing.findUnique({ where: { id } });
+  const l = await db.listing.findUnique({ where: { id }, include: { photos: { orderBy: { position: "asc" } } } });
   if (!l || l.ownerId !== user.id || l.status === "deleted") notFound();
   const { error } = await searchParams;
   return (

@@ -74,7 +74,4 @@ export const subcategoriesOf = (cat: string): readonly { slug: string; name: str
 export const isSubcategory = (cat: string, sub: unknown) => typeof sub === "string" && subcategoriesOf(cat).some((s) => s.slug === sub);
 export const subcategoryName = (cat: string, sub: string | null | undefined) => (sub ? subcategoriesOf(cat).find((s) => s.slug === sub)?.name : undefined);
 
-// Localidades, provincias y comunidades: ver places.ts. CITIES se mantiene por compatibilidad.
-import { PLACES, isPlace } from "./places";
-export const CITIES = PLACES;
-export const isCity = isPlace;
+// Localidades: ver localidades.ts (solo servidor). Comunidades y provincias: places.ts.
