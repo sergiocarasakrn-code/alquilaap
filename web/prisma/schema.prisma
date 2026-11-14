@@ -34,6 +34,15 @@ enum BookingStatus {
   expired
 }
 
+// Programa de invitaciones: pending = el invitado se ha registrado; qualified = ya publicó su primer anuncio
+// (el premio está ganado pero espera a que quien invita tenga un anuncio activo); rewarded = destacado dado.
+enum ReferralStatus {
+  pending
+  qualified
+  rewarded
+  rejected
+}
+
 enum PaymentStatus {
   pending
   paid
@@ -60,6 +69,7 @@ model User {
   kycVerifiedAt    DateTime?
   stripeCustomerId String?   @unique
   deletedAt        DateTime? // cuenta borrada: datos personales eliminados, se conserva el historial anónimo
+  referralCode     String?   @unique // código de su enlace de invitación (se crea la primera vez que lo ve)
 
   sessions       Session[]
   listings       Listing[]
@@ -72,6 +82,8 @@ model User {
   messages       Message[]
   convsAsOwner   Conversation[] @relation("convOwner")
   convsAsRenter  Conversation[] @relation("convRenter")
+  referralsMade  Referral[]     @relation("inviter")
+  referredBy     Referral?      @relation("invitee")
 }
 
 model Session {
@@ -254,6 +266,29 @@ model Message {
 
   @@index([conversationId, createdAt])
   @@index([senderId, createdAt])
+}
+
+// Quién invitó a quién. Un usuario solo puede ser invitado una vez (inviteeId único) y un mismo email
+// (normalizado y cifrado) solo cuenta una vez aunque se borre la cuenta y se vuelva a registrar.
+model Referral {
+  id              String         @id @default(cuid())
+  inviterId       String
+  inviter         User           @relation("inviter", fields: [inviterId], references: [id])
+  inviteeId       String         @unique
+  invitee         User           @relation("invitee", fields: [inviteeId], references: [id])
+  inviteeEmailKey String // sha256 del email normalizado
+  status          ReferralStatus @default(pending)
+  rejectReason    String?
+  firstListingId  String? // primer anuncio que publicó el invitado
+  qualifiedAt     DateTime?
+  rewardedAt      DateTime?
+  rewardDays      Int?
+  rewardListingId String? // anuncio de quien invita que recibió el destacado
+  rewardEndsAt    DateTime?
+  createdAt       DateTime       @default(now())
+
+  @@index([inviterId, status])
+  @@index([inviteeEmailKey])
 }
 
 // Eventos de Stripe ya procesados: el webhook es idempotente.

@@ -6,6 +6,10 @@ import { cache } from "react";
 import { db } from "./db";
 
 const COOKIE = "aq_session";
+// Cuentas que han entrado alguna vez en este navegador (para detectar quien se invita a sí mismo).
+const KNOWN = "aq_known";
+// Código del enlace de invitación con el que llegó este navegador.
+export const REF_COOKIE = "aq_ref";
 const DAYS = 30;
 const sha = (s: string) => createHash("sha256").update(s).digest("hex");
 
@@ -20,6 +24,14 @@ export async function createSession(userId: string) {
     path: "/",
     expires: expiresAt,
   });
+  const jar = await cookies();
+  const known = [userId, ...(await browserUserIds()).filter((id) => id !== userId)].slice(0, 5);
+  jar.set(KNOWN, known.join("."), { httpOnly: true, sameSite: "lax", secure: process.env.NODE_ENV === "production", path: "/", maxAge: 365 * 86_400 });
+}
+
+export async function browserUserIds() {
+  const v = (await cookies()).get(KNOWN)?.value ?? "";
+  return v.split(".").filter((id) => /^[a-z0-9]{10,40}$/.test(id));
 }
 
 export async function destroySession() {

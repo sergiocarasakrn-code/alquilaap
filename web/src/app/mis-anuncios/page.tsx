@@ -2,7 +2,8 @@ import Link from "next/link";
 import { requireUser } from "@/lib/auth";
 import { myListings } from "@/lib/listings";
 import { setListingStatus } from "@/app/actions/listings";
-import { categoryName, PACKS, PAID_FEATURES, type PackCode } from "@/lib/config";
+import { categoryName, PAID_FEATURES } from "@/lib/config";
+import { packName } from "@/lib/ranking";
 import { money, shortDate } from "@/lib/format";
 import { Notice, first } from "@/components/ui";
 
@@ -39,7 +40,7 @@ export default async function MisAnuncios({ searchParams }: { searchParams: Prom
                     {l.status === "paused" && <span className="pill bg-surface-2 text-ink-3">En pausa</span>}
                     {pack ? (
                       <span className="pill bg-tag-soft text-tag-ink">
-                        {PACKS[pack.packCode as PackCode]?.name} hasta {shortDate(pack.endsAt!)}
+                        {packName(pack.packCode)} hasta {shortDate(pack.endsAt!)}
                       </span>
                     ) : (
                       PAID_FEATURES && <span className="pill bg-surface-2 text-ink-3">Visibilidad normal (gratis)</span>
