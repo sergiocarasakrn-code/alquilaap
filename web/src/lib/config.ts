@@ -17,6 +17,24 @@ export function isPackCode(v: unknown): v is PackCode {
   return typeof v === "string" && v in PACKS;
 }
 
+// Programa de invitaciones: destacados GRATIS para quien trae usuarios nuevos. No depende de PAID_FEATURES.
+// El premio se da cuando el invitado se registra con el enlace Y publica su primer anuncio.
+export const REFERRALS = {
+  packCode: "invitacion", // se guarda como una «compra» de 0 € con este código: así reutiliza el sistema de destacados
+  name: "Destacado por invitar",
+  rank: 2, // misma prioridad que el pack Pro 7 días: sale arriba en búsquedas y en la portada
+  daysPerInvite: 7, // cada amigo que publica: 7 días
+  bonusEvery: 3, // y cada 3 amigos...
+  bonusDays: 9, // ...9 días extra de regalo (3 amigos = 7 + 7 + 16 = 30 días)
+  maxRewardsPer30Days: 10, // tope anti-abuso: lo que pase de aquí espera al mes siguiente
+  cookieDays: 30, // cuánto recordamos el enlace de invitación si no se registra en el momento
+} as const;
+
+/** Días de destacado que gana quien invita con su invitado número `n` (1, 2, 3...). */
+export function referralRewardDays(n: number) {
+  return REFERRALS.daysPerInvite + (n > 0 && n % REFERRALS.bonusEvery === 0 ? REFERRALS.bonusDays : 0);
+}
+
 export const PRO_PLAN = {
   name: "Alquilaap Pro",
   priceCents: 2499,

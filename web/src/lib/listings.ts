@@ -2,6 +2,7 @@ import "server-only";
 import type { Prisma } from "@prisma/client";
 import { db } from "./db";
 import { boostRank, sortListings } from "./ranking";
+import { REFERRALS } from "./config";
 import { isProUser } from "./auth";
 import { boundingBox, distanceKm } from "./places";
 
@@ -70,11 +71,11 @@ export async function searchListings({ q, category, subcategory, citySlug, place
   return { items: sorted.slice((p - 1) * PAGE, p * PAGE), total: sorted.length, page: p, pages: Math.max(1, Math.ceil(sorted.length / PAGE)) };
 }
 
-/** Portada: anuncios con pack Pro o Premium activo. */
+/** Portada: anuncios con pack Pro o Premium activo, o destacados por invitar. */
 export async function featuredListings(limit = 8) {
   const now = new Date();
   const rows = await db.listing.findMany({
-    where: { status: "active", packPurchases: { some: { status: "paid", endsAt: { gt: now }, packCode: { in: ["pro", "premium"] } } } },
+    where: { status: "active", packPurchases: { some: { status: "paid", endsAt: { gt: now }, packCode: { in: ["pro", "premium", REFERRALS.packCode] } } } },
     include: include(now),
     take: 50,
   });

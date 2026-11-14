@@ -7,6 +7,7 @@ import { CITIES, FREE_LISTING_LIMIT, PAID_FEATURES, isCategory, isCity, isSubcat
 import { parseEuros } from "@/lib/format";
 import { saveImage } from "@/lib/storage";
 import { fuzz, inSpain } from "@/lib/places";
+import { grantPendingRewards, onListingPublished } from "@/lib/referrals";
 import { runOrBack, str, UserError } from "./util";
 
 const MAX_PHOTOS = 8;
@@ -50,6 +51,8 @@ export async function createListing(fd: FormData) {
     const urls = [];
     for (const f of photos) urls.push(await saveImage(f, "listings"));
     const l = await db.listing.create({ data: { ...data, ownerId: user.id, photos: { create: urls.map((url, position) => ({ url, position })) } } });
+    // Invitaciones: premia automáticamente a quien le invitó (y a él mismo si tenía destacados esperando).
+    await onListingPublished(user.id, l.id).catch((e) => console.error("Error al dar el destacado por invitación", e));
     return l.id;
   });
   revalidatePath("/");
@@ -85,6 +88,7 @@ export async function setListingStatus(id: string, status: "active" | "paused" |
       if (open) throw new UserError("Tiene reservas abiertas: termínalas o cancélalas antes de borrarlo");
     }
     await db.listing.update({ where: { id }, data: { status } });
+    if (status === "active") await grantPendingRewards(user.id).catch((e) => console.error("Error al dar el destacado por invitación", e));
   });
   revalidatePath("/mis-anuncios");
   redirect("/mis-anuncios");

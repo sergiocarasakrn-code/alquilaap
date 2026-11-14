@@ -1,8 +1,13 @@
-import { PACKS, PRO_PLAN, isPackCode } from "./config";
+import { PACKS, PRO_PLAN, REFERRALS, isPackCode } from "./config";
 
-/** Prioridad de un anuncio en búsquedas: pack activo más alto, si no Pro, si no 0 (gratuito). */
+const rankOf = (code: string) => (isPackCode(code) ? PACKS[code].rank : code === REFERRALS.packCode ? REFERRALS.rank : 0);
+
+/** Nombre de un destacado activo para mostrarlo al propietario. */
+export const packName = (code: string) => (isPackCode(code) ? PACKS[code].name : code === REFERRALS.packCode ? REFERRALS.name : "Destacado");
+
+/** Prioridad de un anuncio en búsquedas: destacado activo más alto (pagado o por invitar), si no Pro, si no 0 (gratuito). */
 export function boostRank(activePackCodes: string[], ownerIsPro: boolean) {
-  const packRank = Math.max(0, ...activePackCodes.filter(isPackCode).map((c) => PACKS[c].rank));
+  const packRank = Math.max(0, ...activePackCodes.map(rankOf));
   return Math.max(packRank, ownerIsPro ? PRO_PLAN.rank : 0);
 }
 
