@@ -39,6 +39,8 @@ export function CategoryPicker({ mode, defaultCategory, defaultSubcategory, city
   const [editing, setEditing] = useState(mode === "links" || !defaultCategory);
 
   const href = (c?: string, s?: string) => {
+    // Categoría entera: página de alquiler propia (la que Google indexa).
+    if (c && !s) return city ? `/alquilar/${c}/${city}` : `/alquilar/${c}`;
     const p = new URLSearchParams();
     if (c) p.set("cat", c);
     if (s) p.set("sub", s);

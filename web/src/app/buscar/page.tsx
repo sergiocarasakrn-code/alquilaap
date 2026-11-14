@@ -14,7 +14,8 @@ export async function generateMetadata({ searchParams }: { searchParams: SP }): 
   const zone = parseZone(sp);
   const subName = isCategory(cat) ? subcategoryName(cat, first(sp.sub)) : undefined;
   const parts = [isCategory(cat) ? `Alquiler de ${(subName ?? categoryName(cat)).toLowerCase()}` : "Alquila objetos", zone.label && !zone.mine ? `en ${zone.label}` : ""];
-  return { title: parts.join(" ").trim() };
+  // Los resultados con filtros no se indexan (contenido repetido); las páginas /alquilar/... son las que posicionan.
+  return { title: parts.join(" ").trim(), robots: { index: false, follow: true } };
 }
 
 export default async function Buscar({ searchParams }: { searchParams: SP }) {
