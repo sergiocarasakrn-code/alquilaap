@@ -1,4 +1,6 @@
 import Link from "next/link";
+import type { Metadata } from "next";
+import { abs, jsonLd } from "@/lib/seo";
 import { CATEGORIES } from "@/lib/config";
 import { ZoneFields } from "@/components/ZoneFields";
 import { featuredListings, recentListings } from "@/lib/listings";
@@ -6,11 +8,26 @@ import { ListingGrid, Notice, first } from "@/components/ui";
 import { CategoryIcon } from "@/components/CategoryIcon";
 
 export const dynamic = "force-dynamic";
+export const metadata: Metadata = { alternates: { canonical: "/" } };
+
+// Datos para Google: quién somos y el buscador del sitio.
+const SITE_LD = [
+  { "@context": "https://schema.org", "@type": "Organization", name: "Alquilaap", url: abs("/"), logo: abs("/icons/icon-512.png") },
+  {
+    "@context": "https://schema.org",
+    "@type": "WebSite",
+    name: "Alquilaap",
+    url: abs("/"),
+    inLanguage: "es-ES",
+    potentialAction: { "@type": "SearchAction", target: `${abs("/buscar")}?q={search_term_string}`, "query-input": "required name=search_term_string" },
+  },
+];
 
 export default async function Home({ searchParams }: { searchParams: Promise<Record<string, string | string[] | undefined>> }) {
   const [featured, recent, sp] = await Promise.all([featuredListings(8), recentListings(12), searchParams]);
   return (
     <div className="space-y-10">
+      <script type="application/ld+json" dangerouslySetInnerHTML={jsonLd(SITE_LD)} />
       {first(sp.cuenta) === "borrada" && <Notice ok="Tu cuenta se ha borrado. Gracias por haber usado Alquilaap." />}
       <section className="card overflow-hidden bg-brand-soft p-6 sm:p-10">
         <h1 className="h1 max-w-2xl">Alquila lo que necesitas a gente de tu ciudad</h1>
@@ -31,7 +48,7 @@ export default async function Home({ searchParams }: { searchParams: Promise<Rec
         </div>
         <div className="grid grid-cols-3 gap-2 sm:grid-cols-4 lg:grid-cols-8">
           {CATEGORIES.map((c) => (
-            <Link key={c.slug} href={`/buscar?cat=${c.slug}`} className="card flex flex-col items-center gap-2 px-2 py-4 text-center text-sm font-medium hover:border-brand">
+            <Link key={c.slug} href={`/alquilar/${c.slug}`} className="card flex flex-col items-center gap-2 px-2 py-4 text-center text-sm font-medium hover:border-brand">
               <CategoryIcon slug={c.slug} className="h-8 w-8" />
               {c.name}
             </Link>
@@ -68,7 +85,7 @@ export default async function Home({ searchParams }: { searchParams: Promise<Rec
 
       <section className="grid gap-3 sm:grid-cols-3">
         {[
-          ["1. Reserva", "Elige fechas y envía la solicitud. Todos los usuarios tienen la identidad verificada."],
+          ["1. Reserva", "Elige fechas y envía la solicitud. Los usuarios con el sello «Verificado» han comprobado su identidad."],
           ["2. Recoge y marca «alquilado»", "Al entregar el objeto, los dos lo marcáis en la app. El alquiler y la fianza se pagan en mano."],
           ["3. Devuelve y marca «finalizado»", "Cuando los dos lo marcáis, queda certificado que se devolvió en buen estado. Después, os valoráis."],
         ].map(([t, d]) => (

@@ -11,6 +11,8 @@ import { contactListingOwner } from "@/app/actions/messages";
 import { MAX_LENGTH } from "@/lib/messages";
 import { BookingForm } from "@/components/BookingForm";
 import { Notice, Trust, first } from "@/components/ui";
+import { abs, jsonLd, og } from "@/lib/seo";
+import { isPlace } from "@/lib/localidades";
 
 type P = Promise<{ id: string }>;
 type SP = Promise<Record<string, string | string[] | undefined>>;
@@ -28,7 +30,57 @@ async function load(id: string) {
 export async function generateMetadata({ params }: { params: P }): Promise<Metadata> {
   const l = await load((await params).id);
   if (!l || l.status === "deleted") return {};
-  return { title: `${l.title} en alquiler en ${l.city}`, description: l.description.slice(0, 160), openGraph: { images: l.photos[0]?.url } };
+  const title = `${l.title} en alquiler en ${l.city}`;
+  const price = money(l.pricePerDayCents);
+  const description = clip(`Alquila ${l.title} en ${l.city} por ${price} al día. ${l.description.replace(/\s+/g, " ")}`, 160);
+  const url = `/anuncio/${l.id}`;
+  return {
+    title,
+    description,
+    alternates: { canonical: url },
+    ...og({ title: `${title} · Alquilaap`, description, url, image: l.photos[0]?.url }),
+    robots: l.status === "active" ? undefined : { index: false, follow: true },
+  };
+}
+
+const clip = (t: string, n: number) => (t.length <= n ? t : `${t.slice(0, n - 1).replace(/\s+\S*$/, "")}…`);
+
+/** Datos estructurados del anuncio: Google puede mostrar foto, precio por día y disponibilidad. */
+function listingLd(l: NonNullable<Awaited<ReturnType<typeof load>>>) {
+  const price = (l.pricePerDayCents / 100).toFixed(2);
+  const sub = subcategoryName(l.category, l.subcategory);
+  return [
+    {
+      "@context": "https://schema.org",
+      "@type": "Product",
+      name: l.title,
+      description: l.description.slice(0, 5000),
+      image: l.photos.map((p) => abs(p.url)),
+      category: sub ? `${categoryName(l.category)} > ${sub}` : categoryName(l.category),
+      url: abs(`/anuncio/${l.id}`),
+      offers: {
+        "@type": "Offer",
+        url: abs(`/anuncio/${l.id}`),
+        price,
+        priceCurrency: "EUR",
+        priceSpecification: { "@type": "UnitPriceSpecification", price, priceCurrency: "EUR", unitCode: "DAY", unitText: "día" },
+        businessFunction: "http://purl.org/goodrelations/v1#LeaseOut",
+        availability: l.status === "active" ? "https://schema.org/InStock" : "https://schema.org/OutOfStock",
+        areaServed: { "@type": "City", name: l.city },
+        seller: { "@type": "Person", name: l.owner.name.split(" ")[0] },
+      },
+    },
+    {
+      "@context": "https://schema.org",
+      "@type": "BreadcrumbList",
+      itemListElement: [
+        { "@type": "ListItem", position: 1, name: "Alquilaap", item: abs("/") },
+        { "@type": "ListItem", position: 2, name: `Alquiler de ${categoryName(l.category).toLowerCase()}`, item: abs(`/alquilar/${l.category}`) },
+        { "@type": "ListItem", position: 3, name: l.city, item: abs(`/alquilar/${l.category}/${l.citySlug}`) },
+        { "@type": "ListItem", position: 4, name: l.title },
+      ],
+    },
+  ];
 }
 
 export default async function Anuncio({ params, searchParams }: { params: P; searchParams: SP }) {
@@ -62,24 +114,25 @@ export default async function Anuncio({ params, searchParams }: { params: P; sea
 
   return (
     <div className="grid gap-6 lg:grid-cols-[1fr_360px]">
+      <script type="application/ld+json" dangerouslySetInnerHTML={jsonLd(listingLd(l))} />
       <div className="space-y-5">
         <Notice error={msgError ? undefined : sp.error} ok={first(sp.publicado) ? "¡Anuncio publicado! Ya aparece en las búsquedas." : undefined} />
         <div className="grid gap-2 sm:grid-cols-2">
           {l.photos.map((p, i) => (
             // eslint-disable-next-line @next/next/no-img-element
-            <img key={p.id} src={p.url} alt={i === 0 ? l.title : ""} className={`w-full rounded-2xl bg-surface-2 object-cover ${i === 0 ? "aspect-[4/3] sm:col-span-2" : "aspect-square"}`} />
+            <img key={p.id} src={p.url} alt={i === 0 ? l.title : `${l.title}, foto ${i + 1}`} loading={i === 0 ? "eager" : "lazy"} className={`w-full rounded-2xl bg-surface-2 object-cover ${i === 0 ? "aspect-[4/3] sm:col-span-2" : "aspect-square"}`} />
           ))}
         </div>
         <div>
           <p className="text-sm text-ink-3">
-            <Link href={`/buscar?cat=${l.category}`}>{categoryName(l.category)}</Link>
+            <Link href={`/alquilar/${l.category}`}>{categoryName(l.category)}</Link>
             {subcategoryName(l.category, l.subcategory) && (
               <>
                 {" › "}
                 <Link href={`/buscar?cat=${l.category}&sub=${l.subcategory}`}>{subcategoryName(l.category, l.subcategory)}</Link>
               </>
             )}{" "}
-            · <Link href={`/buscar?ciudad=${l.citySlug}`}>{l.city}</Link>
+            · <Link href={isPlace(l.citySlug) ? `/alquilar/${l.category}/${l.citySlug}` : `/buscar?ciudad=${l.citySlug}`}>{l.city}</Link>
           </p>
           <h1 className="h1 mt-1">{l.title}</h1>
         </div>

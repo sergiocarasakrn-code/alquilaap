@@ -6,6 +6,7 @@ import { isAdmin } from "@/lib/admin";
 import { unreadCount } from "@/lib/messages";
 import { logout } from "./actions/auth";
 import { Logo } from "@/components/Logo";
+import { SITE_URL, og } from "@/lib/seo";
 // Fuentes incluidas en la app (sin descargarlas de Google al construir: así el despliegue no depende de ello).
 import "@fontsource-variable/inter/index.css";
 import "@fontsource/bricolage-grotesque/latin-600.css";
@@ -15,10 +16,15 @@ import "@fontsource/nunito/latin-800.css";
 import "./globals.css";
 
 
+const DEFAULT_TITLE = "Alquilaap · Alquila lo que necesitas, cerca de ti";
+const DEFAULT_DESCRIPTION = "Alquila bicis, herramientas, material de camping y mucho más a particulares y tiendas de tu ciudad. Publicar y alquilar es gratis y sin comisiones.";
+
 export const metadata: Metadata = {
-  metadataBase: new URL(process.env.APP_URL ?? "http://localhost:3000"),
-  title: { default: "Alquilaap · Alquila lo que necesitas, cerca de ti", template: "%s · Alquilaap" },
-  description: "Alquila bicis, herramientas, material de camping y mucho más a particulares y tiendas. Publicar es gratis.",
+  metadataBase: new URL(SITE_URL),
+  title: { default: DEFAULT_TITLE, template: "%s · Alquilaap" },
+  description: DEFAULT_DESCRIPTION,
+  ...og({ title: DEFAULT_TITLE, description: DEFAULT_DESCRIPTION }),
+  formatDetection: { telephone: false },
   applicationName: "Alquilaap",
   appleWebApp: { capable: true, title: "Alquilaap", statusBarStyle: "default" },
   icons: { apple: "/icons/apple-touch-icon.png" },
